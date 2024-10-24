@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Providers/userprovider.dart';
-import 'drawerfile.dart';
+import '../Front_side/drawerfile.dart';
 
 
 class ManagerDashboard extends StatefulWidget {
@@ -23,7 +23,6 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-//new
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -35,13 +34,14 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
     _contentSlideAnimation = Tween<Offset>(begin: Offset.zero, end: const Offset(0.18, 0.0))
         .animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
 
-    // Delay fetch operation until the first frame is rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      user = FirebaseAuth.instance.currentUser; // Get the current user
+      user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        // Fetch user details using the UID
         Provider.of<UserProvider>(context, listen: false).fetchUserDetails(user!.uid);
       }
     });
+
   }
 
 
@@ -67,16 +67,16 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
       children: [
         DashboardItem(
           icon: Icons.work_outline,
-          label: 'Add Departments',
+          label: 'Medicines',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/adddepartments');
+            Navigator.pushNamed(context, '/total_items');
           },
         ),
         DashboardItem(
           icon: Icons.work_outline,
-          label: 'Departments',
+          label: 'Units',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totaldepartments');
+            Navigator.pushNamed(context, '/total_units');
           },
         ),
         // Add other DashboardItems as needed
@@ -128,8 +128,9 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    // final userModel = Provider.of<UserModel>(context); // Listen to user model for updates
-    final screenSize = MediaQuery.of(context).size; // Get screen size dynamically
+    // Access user provider and check the current user state
+    final userProvider = Provider.of<UserProvider>(context);
+    final currentUser = userProvider.currentUser;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -138,27 +139,31 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
           icon: const Icon(Icons.menu),
           onPressed: toggleDrawer,
         ),
-        title: const Text("Manager Dash Board",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 30),),
+        title: const Text("Manager Dashboard", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
       ),
       body: Stack(
         children: [
-          // Animated content that moves to the side when the drawer is open
-          SlideTransition(
-            position: _contentSlideAnimation,
-            child: _buildGridView(screenSize.width), // Pass screen width for responsive grid
-          ),
+          if (currentUser == null) ...[
+            const Center(child: CircularProgressIndicator()), // Show loading indicator while fetching user details
+          ] else ...[
+            SlideTransition(
+              position: _contentSlideAnimation,
+              child: _buildGridView(MediaQuery.of(context).size.width), // Pass screen width for responsive grid
+            ),
+          ],
           // Drawer widget that slides in/out
           SlideTransition(
             position: _slideAnimation,
             child: Container(
-              width: screenSize.width * 0.18, // Adjust width of the drawer (80% of the screen)
-              child:  Drawerfrontside(), // Your custom drawer widget
+              width: MediaQuery.of(context).size.width * 0.18, // Adjust width of the drawer (18% of the screen)
+              child: Drawerfrontside(), // Your custom drawer widget
             ),
           ),
         ],
       ),
     );
   }
+
 
   @override
   void dispose() {

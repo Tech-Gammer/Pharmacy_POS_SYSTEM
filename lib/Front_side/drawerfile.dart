@@ -240,8 +240,8 @@ class Drawerfrontside extends StatelessWidget {
             buildListTile(Icons.logout, "Log out", () async {
               try {
                 // Handle logout using UserProvider
-                // await userProvider.logout(); // Implement logout in UserProvider
-                Navigator.pushReplacementNamed(context, '/login');
+                 await userProvider.logout(); // Implement logout in UserProvider
+                 Navigator.pushReplacementNamed(context, '/login');
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Logout failed: ${e.toString()}")),

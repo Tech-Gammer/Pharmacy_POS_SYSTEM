@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.3,
                   width: double.infinity,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.green,
                     borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(280),
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.3,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(280),
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                           const Text("If you have not registered please click on"),
                           TextButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()));
+                              Navigator.pushNamed(context, ('/register'));
                             },
                             child: const Text("Register"),
                           ),

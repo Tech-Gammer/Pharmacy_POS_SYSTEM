@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final pass = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false; // Add loading state
+  bool obscurePassword = true;
 
 
   void _register() async {
@@ -29,33 +31,50 @@ class _RegisterPageState extends State<RegisterPage> {
       _isLoading = true;
     });
 
-    final user = UserModel(
-      name: nc.text.trim(),
-      email: ec.text.trim(),
-      phone: phonec.text.trim(),
-      password: pass.text.trim(), // Use plain password
-      role: '', // Role will be determined by the provider
-    );
-
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      await userProvider.registerUser(user);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration successful!')),
-
+      // First, create the user using Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: ec.text.trim(),
+        password: pass.text.trim(),
       );
 
+      // Get the user's UID from FirebaseAuth
+      String uid = userCredential.user!.uid;
+
+      // Now, create the UserModel instance
+      final user = UserModel(
+        name: nc.text.trim(),
+        email: ec.text.trim(),
+        phone: phonec.text.trim(),
+        password: pass.text.trim(), // Store the plain password (optional: hash it later)
+        role: '', // The role will be assigned in the provider
+        uid: uid
+      );
+
+      // Register the user in Firebase Realtime Database
+      await userProvider.registerUser(user, uid); // Pass the UID
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration successful!')),
+      );
+
+      // Clear input fields
       nc.clear();
       ec.clear();
       phonec.clear();
       pass.clear();
 
-      // Optionally, navigate to another page or clear fields here.
+      // Optionally, navigate to another page after registration
     } catch (e) {
+      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration failed: $e')),
       );
+      Navigator.pushNamed(context, ('/login'));
     } finally {
       setState(() {
         _isLoading = false;
@@ -185,14 +204,22 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: 10),
                       TextField(
                         controller: pass,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: "Enter Your Password",
                           labelText: "Password",
-                          border: OutlineInputBorder(
+                          border: const OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
+                          suffixIcon: IconButton(
+                            icon: Icon(obscurePassword ? Icons.visibility : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                obscurePassword = !obscurePassword; // Toggle the visibility state
+                              });
+                            },
+                          ),
                         ),
-                        obscureText: true,
+                        obscureText: obscurePassword,
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
@@ -215,8 +242,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       const Text("If you are already registered, please click on"),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => const LoginPage()));
+                          Navigator.pushNamed(context, ('/login'));
                         },
                         child: const Text("Login"),
                       ),

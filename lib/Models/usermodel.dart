@@ -1,4 +1,5 @@
 class UserModel {
+  final String uid;
   final String name;
   final String email;
   final String phone;
@@ -11,6 +12,9 @@ class UserModel {
     required this.phone,
     required this.password,
     required this.role,
+    required this.uid,
+
+
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +24,7 @@ class UserModel {
       'phone': phone,
       'password': password,
       'role': role,
+      'uid':uid
     };
   }
 }
