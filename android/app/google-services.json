@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "14105920861",
+    "project_id": "pharmacy-pos-system",
+    "storage_bucket": "pharmacy-pos-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14105920861:android:df0102de0cb036bed354b4",
+        "android_client_info": {
+          "package_name": "com.example.Pharmacy_POS_SYSTEM"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBz70ncaTnubMeh4pBzimm4G_9OeI7xN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14105920861:android:edc94fcd5719305ed354b4",
+        "android_client_info": {
+          "package_name": "com.example.pharmacy_pos_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBz70ncaTnubMeh4pBzimm4G_9OeI7xN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
