@@ -16,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -101,15 +102,24 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(height: 10),
                           TextFormField(
                             controller: passwordController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: "Enter Your Password",
                               labelText: "Password",
-                              border: OutlineInputBorder(
+                              border: const OutlineInputBorder(
                                 borderRadius: BorderRadius.all(Radius.circular(15)),
                               ),
+                              suffixIcon: IconButton(
+                                icon: Icon(obscurePassword ? Icons.visibility : Icons.visibility_off),
+                                onPressed: () {
+                                  setState(() {
+                                    obscurePassword = !obscurePassword; // Toggle the visibility state
+                                  });
+                                },
+                              ),
                             ),
-                            obscureText: true,
+                            obscureText: obscurePassword, // Correctly reference the state variable
                           ),
+
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: authProvider.isLoggingIn
@@ -153,7 +163,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
   void loginUser(UserProvider authProvider) async {
     try {
       String? role = await authProvider.loginUser(
@@ -161,17 +170,20 @@ class _LoginPageState extends State<LoginPage> {
         passwordController.text.trim(),
       );
 
-      // Use a switch-case or if-else for clearer role handling
-      switch (role) {
-        case 'Manager':
-          Navigator.pushReplacementNamed(context, '/managerpage');
-          break;
-        case 'User':
-          Navigator.pushReplacementNamed(context, '/employeepage');
-
-          break;
-        default:
-          _showSnackbar(context, 'User data not found for Employee,or Manager.');
+      // Navigate based on the role
+      if (role != null) {
+        switch (role) {
+          case 'Manager':
+            Navigator.pushReplacementNamed(context, '/managerpage');
+            break;
+          case 'User':
+            Navigator.pushReplacementNamed(context, '/employeepage');
+            break;
+          default:
+            _showSnackbar(context, 'User role is not recognized.');
+        }
+      } else {
+        _showSnackbar(context, 'Role is null. Please try again.');
       }
     } catch (e) {
       _showSnackbar(context, 'Error: ${e.toString()}');
@@ -181,4 +193,5 @@ class _LoginPageState extends State<LoginPage> {
   void _showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
+
 }
