@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../Models/usermodel.dart';
 import '../Providers/userprovider.dart';
+import 'Loginpage.dart';
 
 
 class RegisterPage extends StatefulWidget {
@@ -42,7 +43,14 @@ class _RegisterPageState extends State<RegisterPage> {
       await userProvider.registerUser(user);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registration successful!')),
+
       );
+
+      nc.clear();
+      ec.clear();
+      phonec.clear();
+      pass.clear();
+
       // Optionally, navigate to another page or clear fields here.
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -207,8 +215,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       const Text("If you are already registered, please click on"),
                       TextButton(
                         onPressed: () {
-                          // Navigator.push(context, MaterialPageRoute(
-                          //     builder: (context) => const LoginPage()));
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => const LoginPage()));
                         },
                         child: const Text("Login"),
                       ),
