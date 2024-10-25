@@ -23,6 +23,9 @@ class _AddItemState extends State<AddItem> {
   final TextEditingController _barcodeController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
+  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _total_piecesController = TextEditingController();
+
 
   double _netPrice = 0.0;
   String? _selectedUnit; // Variable to hold the selected unit
@@ -33,6 +36,9 @@ class _AddItemState extends State<AddItem> {
   @override
   void initState() {
     super.initState();
+
+
+
     _fetchUnits(); // Fetch units when the widget initializes
     _getCurrentUserId(); // Get the current user's ID
     // If an item is passed, populate the form with its data
@@ -47,6 +53,8 @@ class _AddItemState extends State<AddItem> {
       _quantityController.text = widget.item!.quantity.toString();
       _expiryDateController.text = widget.item!.expiryDate;
       _selectedUnit = widget.item!.unit;
+      _brandController.text = widget.item!.brandName;
+      _total_piecesController.text = widget.item!.total_pieces_per_box.toString();
     }
   }
 
@@ -67,7 +75,7 @@ class _AddItemState extends State<AddItem> {
     double salePrice = double.tryParse(_salePriceController.text) ?? 0.0;
     double tax = double.tryParse(_taxController.text) ?? 0.0;
     setState(() {
-      _netPrice = salePrice * (1 + tax / 100); // Net price calculation with tax
+      _netPrice = (salePrice * (1 + tax / 100) * 100).round() / 100; // Limit to 2 decimal places and convert to int
     });
   }
 
@@ -75,6 +83,28 @@ class _AddItemState extends State<AddItem> {
     if (!_formKey.currentState!.validate()) return;
 
     final itemProvider = Provider.of<ItemProvider>(context, listen: false);
+    final double salePrice  = double.tryParse(_salePriceController.text) ?? 0.0 ;
+    final double taxRate =double.tryParse(_taxController.text) ?? 0.0 ;
+    final double taxAmount = (salePrice * taxRate) / 100;
+
+// Calculate rate_per_tab
+    final int totalPieces = int.tryParse(_total_piecesController.text) ?? 0;
+    final double ratePerTab = totalPieces > 0 ? _netPrice / totalPieces : 0.0;
+
+
+    // Check for duplicate items
+    bool isDuplicate = await itemProvider.isDuplicateItem(
+      itemName: _itemNameController.text.trim(),
+      barcode: _barcodeController.text.trim(),
+      itemId: _isUpdate ? widget.item!.id : null,
+    );
+
+    if (isDuplicate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Duplicate item name or barcode found! Please use unique values.")),
+      );
+      return;
+    }
 
     if (_isUpdate) {
       // Update existing item
@@ -90,6 +120,11 @@ class _AddItemState extends State<AddItem> {
         quantity: int.tryParse(_quantityController.text) ?? 0,
         expiryDate: _expiryDateController.text,
         managerId: _managerId!, // Use the manager ID
+        brandName:  _brandController.text,
+        taxamount: taxAmount,
+        total_pieces_per_box: int.tryParse(_total_piecesController.text) ?? 0,
+        ratePerTab: ratePerTab, // Include the calculated rate per tab
+
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -98,7 +133,7 @@ class _AddItemState extends State<AddItem> {
     } else {
       // Add new item
       await itemProvider.addItem(
-        itemName: _itemNameController.text,
+        itemName: _itemNameController.text.trim(),
         purchasePrice: double.tryParse(_purchasePriceController.text) ?? 0.0,
         salePrice: double.tryParse(_salePriceController.text) ?? 0.0,
         tax: double.tryParse(_taxController.text) ?? 0.0,
@@ -107,7 +142,12 @@ class _AddItemState extends State<AddItem> {
         unit: _selectedUnit!,
         quantity: int.tryParse(_quantityController.text) ?? 0,
         expiryDate: _expiryDateController.text,
-        managerId: _managerId!, // Use the manager ID
+        managerId: _managerId!,
+        brandName: _brandController.text.trim(),
+        taxamount: taxAmount, // Use the manager ID
+        total_pieces_per_box: int.tryParse(_total_piecesController.text) ?? 0,
+        ratePerTab: ratePerTab, // Include the calculated rate per tab
+
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -124,48 +164,14 @@ class _AddItemState extends State<AddItem> {
     _barcodeController.clear();
     _quantityController.clear();
     _expiryDateController.clear();
+    _total_piecesController.clear();
+
     setState(() {
       _netPrice = 0.0;
       _selectedUnit = null;
     });
-      Navigator.pushNamed(context, ('/total_items'));
   }
-  // Method to save data to Firebase Realtime Database using ItemProvider
-  // Future<void> _saveItem() async {
-  //   if (!_formKey.currentState!.validate()) return;
-  //
-  //   final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-  //   await itemProvider.addItem(
-  //     itemName: _itemNameController.text,
-  //     purchasePrice: double.tryParse(_purchasePriceController.text) ?? 0.0,
-  //     salePrice: double.tryParse(_salePriceController.text) ?? 0.0,
-  //     tax: double.tryParse(_taxController.text) ?? 0.0,
-  //     netPrice: _netPrice,
-  //     barcode: _barcodeController.text,
-  //     unit: _selectedUnit!,
-  //     quantity: int.tryParse(_quantityController.text) ?? 0,
-  //     expiryDate: _expiryDateController.text,
-  //     managerId: _managerId!, // Use the manager ID
-  //   );
-  //
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text("Item added successfully!")),
-  //   );
-  //   // Clear form
-  //   _formKey.currentState!.reset();
-  //   // Clear TextEditingControllers
-  //   _itemNameController.clear();
-  //   _purchasePriceController.clear();
-  //   _salePriceController.clear();
-  //   _taxController.clear();
-  //   _barcodeController.clear();
-  //   _quantityController.clear();
-  //   _expiryDateController.clear();
-  //   setState(() {
-  //     _netPrice = 0.0;
-  //     _selectedUnit = null; // Reset the selected unit
-  //   });
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +207,23 @@ class _AddItemState extends State<AddItem> {
                 },
               ),
               const SizedBox(height: 10),
-
+              TextFormField(
+                controller: _brandController,
+                decoration: const InputDecoration(
+                  labelText: "Brand Name",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter brand name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
               // Purchase Price
               TextFormField(
                 controller: _purchasePriceController,
@@ -342,6 +364,24 @@ class _AddItemState extends State<AddItem> {
                 },
               ),
               const SizedBox(height: 10),
+              TextFormField(
+                controller: _total_piecesController,
+                decoration: const InputDecoration(
+                  labelText: "Total Pieces Per Box",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter quantity';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
 
               // Expiry Date
               TextFormField(
@@ -378,8 +418,16 @@ class _AddItemState extends State<AddItem> {
 
               // Save Button
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
                 onPressed: _saveOrUpdateItem,
-                child: const Text('Add Item'),
+                child: const Text('Add Item',style: TextStyle(fontSize: 25, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),

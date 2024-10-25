@@ -67,9 +67,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
       children: [
         DashboardItem(
           icon: Icons.work_outline,
-          label: 'Add Departments',
+          label: 'POS',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/adddepartments');
+            Navigator.pushNamed(context, '/POS_Page');
           },
         ),
         DashboardItem(

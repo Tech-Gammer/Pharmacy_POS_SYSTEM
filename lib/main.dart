@@ -4,6 +4,7 @@ import 'package:pharmacy_pos_system/auth_pages/Loginpage.dart';
 import 'package:provider/provider.dart';
 
 import 'EmployeeSide/Employee_DashBoard.dart';
+import 'EmployeeSide/POS.dart';
 import 'ManagerSide/Manager_DashBoard.dart';
 import 'ManagerSide/add_item.dart';
 import 'ManagerSide/add_units.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
           '/add_units': (context) => const Addunit(),
           '/total_units': (context) => const ShowUnit(),
           '/total_items': (context) => const ItemsPage(),
+          '/POS_Page': (context) =>  SalesRegisterPage(),
 
 
         },

@@ -34,7 +34,7 @@ class _ItemsPageState extends State<ItemsPage> {
         automaticallyImplyLeading: false,
         leading: IconButton(onPressed: (){
           Navigator.pushNamed(context, ('/managerpage'));
-        }, icon: Icon(Icons.arrow_back)),
+        }, icon: const Icon(Icons.arrow_back)),
         title: const Text('All Items'),
         backgroundColor: Colors.teal,
       ),
@@ -45,12 +45,15 @@ class _ItemsPageState extends State<ItemsPage> {
         itemBuilder: (context, index) {
           final item = items[index];
           return ListTile(
-            title: Text(item.itemName,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+            title: Text(item.itemName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
             subtitle: Row(
               children: [
-                Text('Price: \ ${item.netPrice.toStringAsFixed(2)}rs'),
-                SizedBox(width: 30,),
+                Text('Rate of Box: \ ${item.netPrice.toStringAsFixed(2)} rs'),
+                const SizedBox(width: 30,),
                 Text('Qty: ${item.quantity}'),
+                const SizedBox(width: 30,),
+                Text('Rate Per Tab: ${item.ratePerTab.toStringAsFixed(2)} rs'),
+
               ],
             ),
             trailing: PopupMenuButton<String>(
