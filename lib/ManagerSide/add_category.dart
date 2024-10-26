@@ -20,7 +20,7 @@ class _AddcategoryState extends State<Addcategory> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: IconButton(onPressed: (){
-          Navigator.pushNamed(context, ('/total_category'));
+          Navigator.pushNamed(context, ('/total_categories'));
         }, icon: Icon(Icons.arrow_back)),
         title: const Text('Add New categorys'),
         backgroundColor: Colors.teal,

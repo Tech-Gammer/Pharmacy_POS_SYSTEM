@@ -54,7 +54,7 @@ class Item {
       netPrice: (data['net_price'] as num?)?.toDouble() ?? 0.0,
       barcode: data['barcode'] ?? '', // Provide a default empty string if null
       unit: data['unit'] ?? '', // Provide a default empty string if null
-      minimum_quantity: (data['quantity'] as num?)?.toInt() ?? 0, // Handle null for integer values
+      minimum_quantity: (data['minimum_quantity'] as num?)?.toInt() ?? 0, // Handle null for integer values
       expiryDate: data['expiry_date'] ?? '', // Provide a default empty string if null
       managerId: data['manager_id'] ?? '', // Provide a default empty string if null
       taxamount: (data['tax_amount'] as num?)?.toDouble() ?? 0.0,

@@ -57,8 +57,11 @@ class _AddItemState extends State<AddItem> {
       _quantityController.text = widget.item!.minimum_quantity.toString();
       _expiryDateController.text = widget.item!.expiryDate;
       _selectedUnit = widget.item!.unit;
+      _selectedCategory = widget.item!.category;
       _genericController.text = widget.item!.genericName;
       _total_piecesController.text = widget.item!.total_pieces_per_box.toString();
+      _locationController.text = widget.item!.location;
+      _manufacController.text = widget.item!.manufacturer;
     }
   }
 
@@ -83,7 +86,6 @@ class _AddItemState extends State<AddItem> {
     _managerId = authProvider.currentUserId; // Assuming you have this method
     print("Current Manager ID: $_managerId"); // Debugging line
   }
-  // Method to calculate net price
   void _calculateNetPrice() {
     double salePrice = double.tryParse(_salePriceController.text) ?? 0.0;
     double tax = double.tryParse(_taxController.text) ?? 0.0;

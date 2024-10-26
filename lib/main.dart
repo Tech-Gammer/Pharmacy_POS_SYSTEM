@@ -11,6 +11,7 @@ import 'ManagerSide/Manager_DashBoard.dart';
 import 'ManagerSide/add_item.dart';
 import 'ManagerSide/add_supplier.dart';
 import 'ManagerSide/add_units.dart';
+import 'ManagerSide/purchase_item.dart';
 import 'ManagerSide/total_category.dart';
 import 'ManagerSide/total_items.dart';
 import 'ManagerSide/total_suppliers.dart';
@@ -61,7 +62,7 @@ class MyApp extends StatelessWidget {
           '/total_categories': (context) =>  Showcategory(),
           '/total_suppliers': (context) =>  ViewSuppliersPage(),
           '/add_suppliers': (context) =>  AddSupplierPage(),
-          '/purchase_page': (context) =>  DetailsSide(),
+          '/purchase_page': (context) =>  PurchasePage(),
 
         },
         title: 'Pharmacy POS',
