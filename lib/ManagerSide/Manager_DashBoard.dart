@@ -82,24 +82,24 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
         // Add other DashboardItems as needed
         DashboardItem(
           icon: Icons.people_alt_outlined,
-          label: 'Managers',
+          label: 'Categories',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totalmanagers');
+            Navigator.pushNamed(context, '/total_categories');
             // Navigator.push(context, MaterialPageRoute(builder: (context)=>const ManagersListPage()));
           },
         ),
         DashboardItem(
           icon: Icons.rule,
-          label: 'Terminations',
+          label: 'Suppliers',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totalresticated');
+            Navigator.pushNamed(context, '/total_suppliers');
           },
         ),
         DashboardItem(
           icon: Icons.rule,
-          label: 'Goal Assignments',
+          label: 'Purchases',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/goalassignments');
+            Navigator.pushNamed(context, '/purchase_page');
           },
         ),DashboardItem(
           icon: Icons.rule,

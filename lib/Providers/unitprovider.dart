@@ -16,6 +16,7 @@ class UnitProvider with ChangeNotifier {
   List<Unit> _units = [];
 
   List<Unit> get units => _units;
+
   Future<void> addUnit(String name) async {
     // Check for duplicates
     final snapshot = await dref.orderByChild('name').equalTo(name).once();

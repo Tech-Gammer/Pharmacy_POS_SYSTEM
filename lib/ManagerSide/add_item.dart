@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Models/itemmodel.dart';
 import '../Providers/authProvieder.dart';
+import '../Providers/categoryprovider.dart';
 import '../Providers/itemprovider.dart';
 import '../Providers/unitprovider.dart';
 
@@ -23,23 +24,26 @@ class _AddItemState extends State<AddItem> {
   final TextEditingController _barcodeController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _genericController = TextEditingController();
   final TextEditingController _total_piecesController = TextEditingController();
+  final TextEditingController _manufacController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
 
   double _netPrice = 0.0;
-  String? _selectedUnit; // Variable to hold the selected unit
+  String? _selectedUnit = 'Box'; // Variable to hold the selected unit
   List<String> _unitNames = []; // List to hold unit names
   String? _managerId;
   bool _isUpdate = false; // To track if it's update mode
+  String? _selectedCategory; // Variable to hold the selected unit
+  List<String> _categoryNames = []; // List to hold unit names
 
   @override
   void initState() {
     super.initState();
 
-
-
     _fetchUnits(); // Fetch units when the widget initializes
+    _fetchCategory();
     _getCurrentUserId(); // Get the current user's ID
     // If an item is passed, populate the form with its data
     if (widget.item != null) {
@@ -50,10 +54,10 @@ class _AddItemState extends State<AddItem> {
       _taxController.text = widget.item!.tax.toString();
       _netPrice = widget.item!.netPrice;
       _barcodeController.text = widget.item!.barcode;
-      _quantityController.text = widget.item!.quantity.toString();
+      _quantityController.text = widget.item!.minimum_quantity.toString();
       _expiryDateController.text = widget.item!.expiryDate;
       _selectedUnit = widget.item!.unit;
-      _brandController.text = widget.item!.brandName;
+      _genericController.text = widget.item!.genericName;
       _total_piecesController.text = widget.item!.total_pieces_per_box.toString();
     }
   }
@@ -65,6 +69,15 @@ class _AddItemState extends State<AddItem> {
     print("Fetched units: $_unitNames"); // Debugging line
     setState(() {}); // Trigger a rebuild
   }
+
+  Future<void> _fetchCategory() async {
+    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+    await categoryProvider.fetchcategorys(); // Await the fetchCategory method
+    _categoryNames = categoryProvider.categorys.map((category) => category.name).toList();
+    print("Fetched categories: $_categoryNames"); // Debugging line
+    setState(() {}); // Trigger a rebuild
+  }
+
   Future<void> _getCurrentUserId() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     _managerId = authProvider.currentUserId; // Assuming you have this method
@@ -117,13 +130,16 @@ class _AddItemState extends State<AddItem> {
         netPrice: _netPrice,
         barcode: _barcodeController.text,
         unit: _selectedUnit!,
-        quantity: int.tryParse(_quantityController.text) ?? 0,
+        minimum_quantity: int.tryParse(_quantityController.text) ?? 0,
         expiryDate: _expiryDateController.text,
         managerId: _managerId!, // Use the manager ID
-        brandName:  _brandController.text,
+        genericName:  _genericController.text,
+        location:  _locationController.text,
         taxamount: taxAmount,
         total_pieces_per_box: int.tryParse(_total_piecesController.text) ?? 0,
         ratePerTab: ratePerTab, // Include the calculated rate per tab
+        category: _selectedCategory!,
+        manufacturer: _manufacController.text,
 
       );
 
@@ -140,14 +156,16 @@ class _AddItemState extends State<AddItem> {
         netPrice: _netPrice,
         barcode: _barcodeController.text,
         unit: _selectedUnit!,
-        quantity: int.tryParse(_quantityController.text) ?? 0,
+        minimum_quantity: int.tryParse(_quantityController.text) ?? 0,
         expiryDate: _expiryDateController.text,
         managerId: _managerId!,
-        brandName: _brandController.text.trim(),
+        genericName: _genericController.text.trim(),
         taxamount: taxAmount, // Use the manager ID
         total_pieces_per_box: int.tryParse(_total_piecesController.text) ?? 0,
         ratePerTab: ratePerTab, // Include the calculated rate per tab
-
+        category: _selectedCategory!,
+        location: _locationController.text,
+        manufacturer: _manufacController.text,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -165,10 +183,13 @@ class _AddItemState extends State<AddItem> {
     _quantityController.clear();
     _expiryDateController.clear();
     _total_piecesController.clear();
+    _locationController.clear();
+    _manufacController.clear();
 
     setState(() {
       _netPrice = 0.0;
       _selectedUnit = null;
+      _selectedCategory = null;
     });
   }
 
@@ -179,7 +200,7 @@ class _AddItemState extends State<AddItem> {
       appBar: AppBar(automaticallyImplyLeading: false,
         leading: IconButton(onPressed: (){
           Navigator.pushNamed(context, ('/total_items'));
-        }, icon: Icon(Icons.arrow_back)),
+        }, icon: const Icon(Icons.arrow_back)),
         title: const Text('Add New Medicine'),
         backgroundColor: Colors.teal,
       ),
@@ -189,7 +210,26 @@ class _AddItemState extends State<AddItem> {
           key: _formKey,
           child: ListView(
             children: [
+              // Barcode
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _barcodeController,
+                decoration: const InputDecoration(
+                  labelText: "Barcode",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter barcode';
+                  }
+                  return null;
+                },
+              ),
               // Item Name
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _itemNameController,
                 decoration: const InputDecoration(
@@ -206,25 +246,27 @@ class _AddItemState extends State<AddItem> {
                   return null;
                 },
               ),
+              //Pieces in Packing
               const SizedBox(height: 10),
               TextFormField(
-                controller: _brandController,
+                controller: _total_piecesController,
                 decoration: const InputDecoration(
-                  labelText: "Brand Name",
+                  labelText: "Pieces in Packing",
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blueAccent, width: 2),
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                   ),
                 ),
+                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter brand name';
+                    return 'Please enter quantity';
                   }
                   return null;
                 },
               ),
+              //purchase price
               const SizedBox(height: 10),
-              // Purchase Price
               TextFormField(
                 controller: _purchasePriceController,
                 decoration: const InputDecoration(
@@ -242,9 +284,8 @@ class _AddItemState extends State<AddItem> {
                   return null;
                 },
               ),
+              //sale price
               const SizedBox(height: 10),
-
-              // Sale Price
               TextFormField(
                 controller: _salePriceController,
                 decoration: const InputDecoration(
@@ -263,9 +304,26 @@ class _AddItemState extends State<AddItem> {
                   return null;
                 },
               ),
+              //manufacturer
               const SizedBox(height: 10),
-
+              TextFormField(
+                controller: _manufacController,
+                decoration: const InputDecoration(
+                  labelText: "Manufacturer",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter Manufacturer name';
+                  }
+                  return null;
+                },
+              ),
               // Tax
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _taxController,
                 decoration: const InputDecoration(
@@ -284,9 +342,8 @@ class _AddItemState extends State<AddItem> {
                   return null;
                 },
               ),
-              const SizedBox(height: 10),
-
               // Net Price (calculated)
+               const SizedBox(height: 10),
               ListTile(
                 title: const Text("Net Price (Including Tax):"),
                 subtitle: Text(
@@ -294,28 +351,37 @@ class _AddItemState extends State<AddItem> {
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
               ),
+              // Category Dropdown
               const SizedBox(height: 10),
-
-              // Barcode
-              TextFormField(
-                controller: _barcodeController,
+              DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
-                  labelText: "Barcode",
+                  labelText: "Category",
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blueAccent, width: 2),
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                   ),
                 ),
+                value: _selectedCategory,
+                items: _categoryNames.map((category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value; // Update the selected unit
+                  });
+                },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter barcode';
+                  if (value == null) {
+                    return 'Please select a unit';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 10),
-
               // Unit Dropdown
+              const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: "Unit",
@@ -343,13 +409,12 @@ class _AddItemState extends State<AddItem> {
                   return null;
                 },
               ),
+              // minimum Quantity
               const SizedBox(height: 10),
-
-              // Quantity
               TextFormField(
                 controller: _quantityController,
                 decoration: const InputDecoration(
-                  labelText: "Quantity",
+                  labelText: "Minimum Quantity",
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blueAccent, width: 2),
                     borderRadius: BorderRadius.all(Radius.circular(15)),
@@ -358,32 +423,32 @@ class _AddItemState extends State<AddItem> {
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter quantity';
+                    return 'Please enter minimum quantity';
                   }
                   return null;
                 },
               ),
+              const SizedBox(height: 10),
+              //generic name
               const SizedBox(height: 10),
               TextFormField(
-                controller: _total_piecesController,
+                controller: _genericController,
                 decoration: const InputDecoration(
-                  labelText: "Total Pieces Per Box",
+                  labelText: "Generic Name",
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blueAccent, width: 2),
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                   ),
                 ),
-                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter quantity';
+                    return 'Please enter Generic name';
                   }
                   return null;
                 },
               ),
-              const SizedBox(height: 10),
-
               // Expiry Date
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _expiryDateController,
                 readOnly: true,
@@ -414,8 +479,25 @@ class _AddItemState extends State<AddItem> {
                   ),
                 ),
               ),
+              //location
               const SizedBox(height: 20),
-
+              TextFormField(
+                controller: _locationController,
+                decoration: const InputDecoration(
+                  labelText: "Location",
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter Location';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
               // Save Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(

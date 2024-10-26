@@ -50,7 +50,7 @@ class _ItemsPageState extends State<ItemsPage> {
               children: [
                 Text('Rate of Box: \ ${item.netPrice.toStringAsFixed(2)} rs'),
                 const SizedBox(width: 30,),
-                Text('Qty: ${item.quantity}'),
+                Text('Qty: ${item.minimum_quantity}'),
                 const SizedBox(width: 30,),
                 Text('Rate Per Tab: ${item.ratePerTab.toStringAsFixed(2)} rs'),
 
@@ -119,8 +119,8 @@ class _ItemsPageState extends State<ItemsPage> {
         onPressed: () {
           showAddItemDialog();
         },
-        child: const Icon(Icons.add, color: Colors.white),
         backgroundColor:  Colors.teal,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

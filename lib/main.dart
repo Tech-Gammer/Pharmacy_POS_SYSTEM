@@ -1,16 +1,22 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pharmacy_pos_system/Providers/supplierprovider.dart';
 import 'package:pharmacy_pos_system/auth_pages/Loginpage.dart';
 import 'package:provider/provider.dart';
 
+import 'ButtSb_Purchase_page.dart';
 import 'EmployeeSide/Employee_DashBoard.dart';
 import 'EmployeeSide/POS.dart';
 import 'ManagerSide/Manager_DashBoard.dart';
 import 'ManagerSide/add_item.dart';
+import 'ManagerSide/add_supplier.dart';
 import 'ManagerSide/add_units.dart';
+import 'ManagerSide/total_category.dart';
 import 'ManagerSide/total_items.dart';
+import 'ManagerSide/total_suppliers.dart';
 import 'ManagerSide/total_units.dart';
 import 'Providers/authProvieder.dart';
+import 'Providers/categoryprovider.dart';
 import 'Providers/itemprovider.dart';
 import 'Providers/unitprovider.dart';
 import 'Providers/userprovider.dart';
@@ -35,6 +41,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UnitProvider()),
          ChangeNotifierProvider(create: (_) => ItemProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => SupplierProvider()),
 
       ],
       child: MaterialApp(
@@ -49,7 +57,11 @@ class MyApp extends StatelessWidget {
           '/total_units': (context) => const ShowUnit(),
           '/total_items': (context) => const ItemsPage(),
           '/POS_Page': (context) =>  SalesRegisterPage(),
-
+          '/add_category': (context) =>  SalesRegisterPage(),
+          '/total_categories': (context) =>  Showcategory(),
+          '/total_suppliers': (context) =>  ViewSuppliersPage(),
+          '/add_suppliers': (context) =>  AddSupplierPage(),
+          '/purchase_page': (context) =>  DetailsSide(),
 
         },
         title: 'Pharmacy POS',
