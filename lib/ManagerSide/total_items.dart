@@ -50,7 +50,7 @@ class _ItemsPageState extends State<ItemsPage> {
               children: [
                 Text('Rate of Box: \ ${item.netPrice.toStringAsFixed(2)} rs'),
                 const SizedBox(width: 30,),
-                Text('Qty: ${item.minimum_quantity}'),
+                Text('Qty: '),
                 const SizedBox(width: 30,),
                 Text('Rate Per Tab: ${item.ratePerTab.toStringAsFixed(2)} rs'),
 

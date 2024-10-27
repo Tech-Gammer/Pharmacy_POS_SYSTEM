@@ -103,9 +103,9 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
           },
         ),DashboardItem(
           icon: Icons.rule,
-          label: 'Total Goals',
+          label: 'Total Purchases',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totalgoalslist');
+            Navigator.pushNamed(context, '/total_purchases');
           },
         ),
 

@@ -1,9 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pharmacy_pos_system/ManagerSide/total_purchases.dart';
+import 'package:pharmacy_pos_system/Providers/purchaseprovider.dart';
 import 'package:pharmacy_pos_system/Providers/supplierprovider.dart';
 import 'package:pharmacy_pos_system/auth_pages/Loginpage.dart';
 import 'package:provider/provider.dart';
-
 import 'ButtSb_Purchase_page.dart';
 import 'EmployeeSide/Employee_DashBoard.dart';
 import 'EmployeeSide/POS.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => SupplierProvider()),
+        ChangeNotifierProvider(create: (_) => PurchaseProvider()),
 
       ],
       child: MaterialApp(
@@ -63,6 +65,7 @@ class MyApp extends StatelessWidget {
           '/total_suppliers': (context) =>  ViewSuppliersPage(),
           '/add_suppliers': (context) =>  AddSupplierPage(),
           '/purchase_page': (context) =>  PurchasePage(),
+          '/total_purchases': (context) =>  TotalPurchases(),
 
         },
         title: 'Pharmacy POS',
