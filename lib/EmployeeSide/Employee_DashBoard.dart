@@ -69,7 +69,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
           icon: Icons.work_outline,
           label: 'POS',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/POS_Page');
+            Navigator.pushNamed(context, '/POS_PAGE');
           },
         ),
         DashboardItem(

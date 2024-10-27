@@ -17,6 +17,8 @@ class Item {
   final String manufacturer;
   final String location;
   final String category;
+  final int? box_qty;
+  final int? total_pieces;
 
 
   Item({
@@ -37,7 +39,9 @@ class Item {
     required this.ratePerTab,
     required this.location,
     required this.manufacturer,
-    required this.category
+    required this.category,
+     this.box_qty,
+     this.total_pieces,
 
   });
 
@@ -63,6 +67,10 @@ class Item {
       manufacturer: data['manufacturer'] ?? '', // Provide a default empty string if null
       location: data['location'] ?? '', // Provide a default empty string if null
       category: data['category'] ?? '', // Provide a default empty string if null
+      box_qty: (data['box_qty'] as num?)?.toInt() ?? 0, // Handle null for integer values
+      total_pieces: (data['total_pieces'] as num?)?.toInt() ?? 0, // Handle null for integer values
+
+
 
     );
   }

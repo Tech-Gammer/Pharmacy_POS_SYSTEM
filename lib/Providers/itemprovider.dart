@@ -161,7 +161,8 @@ class ItemProvider with ChangeNotifier {
         ratePerTab:ratePerTab,
         manufacturer:manufacturer,
         location:location,
-        category: category
+        category: category,
+
       );
 
       // Update the item in Firebase using item_id node

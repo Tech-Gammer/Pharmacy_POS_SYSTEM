@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pharmacy_pos_system/ManagerSide/purchase_item.dart';
 import 'package:provider/provider.dart';
 import 'package:pharmacy_pos_system/Providers/purchaseprovider.dart';
 
@@ -45,12 +46,12 @@ class _TotalPurchasesState extends State<TotalPurchases> {
                   onSelected: (value) {
                     if (value == 'update') {
                       // Navigate to AddItem page with the selected item for updating
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddItem(item: item), // Pass the item to AddItem page
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => PurchasePage(), // Pass the item to AddItem page
+                      //   ),
+                      // );
                     } else if (value == 'delete') {
                       // Show confirmation dialog before deleting
                       showDialog(
@@ -70,8 +71,8 @@ class _TotalPurchasesState extends State<TotalPurchases> {
                                 child: const Text("Delete"),
                                 onPressed: () async {
                                   // Call the delete function in the provider after confirmation
-                                  final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-                                  await itemProvider.deleteItem(item.id); // Pass the item's ID
+                                  // final itemProvider = Provider.of<ItemProvider>(context, listen: false);
+                                  // await itemProvider.deleteItem(item.id); // Pass the item's ID
 
                                   Navigator.of(context).pop(); // Close the dialog after delete
                                   ScaffoldMessenger.of(context).showSnackBar(

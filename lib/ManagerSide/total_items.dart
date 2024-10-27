@@ -48,12 +48,13 @@ class _ItemsPageState extends State<ItemsPage> {
             title: Text(item.itemName,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
             subtitle: Row(
               children: [
-                Text('Rate of Box: \ ${item.netPrice.toStringAsFixed(2)} rs'),
+                Text('Rate of Box:  ${item.netPrice.toStringAsFixed(2)} rs'),
                 const SizedBox(width: 30,),
-                Text('Qty: '),
+                Text('Qty By Tab: ${item.total_pieces} pcs'),
+                const SizedBox(width: 30,),
+                Text('Qty By Box: ${item.box_qty} pcs'),
                 const SizedBox(width: 30,),
                 Text('Rate Per Tab: ${item.ratePerTab.toStringAsFixed(2)} rs'),
-
               ],
             ),
             trailing: PopupMenuButton<String>(

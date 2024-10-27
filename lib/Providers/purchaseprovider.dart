@@ -8,6 +8,7 @@ class Item {
   final String barcode;
   final double sellingRate; // Add sellingRate
   final double landingCost; // Add landingCost
+  final int totalPiecesPerBox; // Add this property
 
   Item({
     required this.id,
@@ -16,11 +17,13 @@ class Item {
     required this.barcode,
     required this.sellingRate, // Add sellingRate to constructor
     required this.landingCost, // Add landingCost to constructor
+    required this.totalPiecesPerBox,
   });
 }
 class SelectedItem {
   final String id; // Unique identifier for the item
   final String name;
+  final int totalPiecesPerBox; // Total pieces per box
   String discount;
   String discountType; // "percentage" or "amount"
   String taxType; // "percentage" or "amount"
@@ -28,6 +31,7 @@ class SelectedItem {
   double sellingRate;
   double landingCost;
   int qty;
+
 
   SelectedItem({
     required this.id,
@@ -39,6 +43,7 @@ class SelectedItem {
     required this.sellingRate,
     required this.landingCost,
     required this.qty,
+    required this.totalPiecesPerBox, // Add this property
   });
 
   double get discountAmount {
@@ -73,7 +78,6 @@ class SelectedItem {
 class PurchaseProvider extends ChangeNotifier {
   final TextEditingController expiryDateController = TextEditingController();
   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
-
   List<String> suppliers = [];
   String? selectedSupplier;
   String? purchaseNumber;
@@ -87,7 +91,7 @@ class PurchaseProvider extends ChangeNotifier {
   double cashPaid = 0.0; // Add this variable
   bool isEditing = false;
   List<Map<String, dynamic>> invoices = []; // List to hold invoice data
-
+  double remainingAmount = 0.0;
 
   PurchaseProvider() {
     String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -111,6 +115,13 @@ class PurchaseProvider extends ChangeNotifier {
   void updateCashPaid(String value) {
     cashPaid = double.tryParse(value) ?? 0.0;
     notifyListeners(); // Notify listeners for UI updates
+    calculateRemainingAmount();
+
+  }
+
+  void calculateRemainingAmount() {
+    remainingAmount = totalAmount - cashPaid;
+    notifyListeners();
   }
 
   void searchItems(String query) {
@@ -119,7 +130,9 @@ class PurchaseProvider extends ChangeNotifier {
     } else {
       displayedItems = items
           .where((item) =>
-          item.name.toLowerCase().contains(query.toLowerCase()))
+          item.name.toLowerCase().contains(query.toLowerCase()) ||
+              item.barcode.toString().contains(query) ||
+              item.genericName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
     notifyListeners();
@@ -158,8 +171,8 @@ class PurchaseProvider extends ChangeNotifier {
             genericName: item['generic_name'] ?? 'Unnamed Generic',
             barcode: item['barcode'] ?? '000000',
             sellingRate: double.parse(item['net_price']?.toString() ?? '0.0'),
-            landingCost: double.parse(
-                item['purchase_price']?.toString() ?? '0.0'),
+            landingCost: double.parse(item['purchase_price']?.toString() ?? '0.0'),
+            totalPiecesPerBox: item['total_pieces_per_box'] ?? 0, // Provide totalPiecesPerBox value here
           );
         }).toList();
         filteredItems = List.from(items);
@@ -196,6 +209,8 @@ class PurchaseProvider extends ChangeNotifier {
           sellingRate: item.sellingRate,
           landingCost: item.landingCost,
           qty: 1,
+          totalPiecesPerBox: item.totalPiecesPerBox,
+
         ));
         calculateTotal();
         notifyListeners();
@@ -259,13 +274,14 @@ class PurchaseProvider extends ChangeNotifier {
     }
 
     try {
-      // Generate a unique purchase ID
-      String purchaseId = DateTime
-          .now()
-          .millisecondsSinceEpoch
-          .toString();
+      // Generate a unique purchase ID using push()
+      String? purchaseId = databaseRef.child('purchases').push().key;
 
       double remainingBalance = totalAmount - cashPaid;
+
+      // Calculate total box quantity and total pieces
+      int totalBoxQty = selectedItems.fold(0, (sum, item) => sum + item.qty);
+      int totalPieces = 0;
 
       // Create a purchase entry
       Map<String, dynamic> purchaseData = {
@@ -274,15 +290,23 @@ class PurchaseProvider extends ChangeNotifier {
         'date': expiryDateController.text,
         'totalAmount': totalAmount,
         'cashpaid': cashPaid,
-        'remainingBalance': remainingBalance, // Add remaining balance here
+        'remainingBalance': remainingBalance,
+        'box_qty': totalBoxQty, // Save the total box quantity outside of items
+        'total_pieces': 0, // Initialize total pieces here, to be updated later
         'items': [], // List to store item details
       };
+
       // Loop through selected items and add to purchase data
       for (var item in selectedItems) {
-        purchaseData['items'].add({
+        int itemTotalPieces = (item.qty * item.totalPiecesPerBox) as int;
+        totalPieces += itemTotalPieces;
+
+        Map<String, dynamic> itemData = {
           'itemId': item.id,
           'item_name': item.name,
-          'qty': item.qty,
+          'box_qty': item.qty, // Quantity for this specific item
+          'total_pieces': itemTotalPieces, // Calculate and store total pieces per item
+          'total_pieces_per_box': item.totalPiecesPerBox,
           'discountType': item.discountType,
           'discount': item.discount,
           'discountAmount': item.discountAmount,
@@ -293,10 +317,36 @@ class PurchaseProvider extends ChangeNotifier {
           'landingCost': item.landingCost,
           'totalExcludingTax': item.totalExcludingTax,
           'totalIncludingTax': item.totalIncludingTax,
+        };
+
+        // Add item data to both the items list in purchaseData and the items node directly
+        purchaseData['items'].add(itemData);
+
+        // Get current values from the database
+        final itemRef = databaseRef.child('items/${item.id}');
+        final currentData = await itemRef.get();
+
+        int currentBoxQty = 0;
+        int currentTotalPieces = 0;
+
+        // Check if data exists and cast to a map if not null
+        if (currentData.value != null && currentData.value is Map) {
+          final currentDataMap = currentData.value as Map<dynamic, dynamic>;
+          currentBoxQty = currentDataMap['box_qty'] ?? 0;
+          currentTotalPieces = currentDataMap['total_pieces'] ?? 0;
+        }
+
+        // Update with new quantities
+        await itemRef.update({
+          'box_qty': currentBoxQty + item.qty,
+          'total_pieces': currentTotalPieces + itemTotalPieces,
         });
       }
 
-      // Save the purchase to the database
+
+      purchaseData['total_pieces'] = totalPieces;
+
+      // Save the purchase to the database using the generated key
       await databaseRef.child('purchases/$purchaseId').set(purchaseData);
 
       // Clear all fields after saving
@@ -307,7 +357,6 @@ class PurchaseProvider extends ChangeNotifier {
     }
   }
 
-  // Method to clear all purchase-related data
   void clearPurchaseData() {
     selectedSupplier = null;
     purchaseNumber = null;

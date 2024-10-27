@@ -355,33 +355,6 @@ class PurchasePage extends StatelessWidget {
               child: const Text('Save Purchase',style: TextStyle(fontSize: 25, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Go back to the previous page
-                  },
-                  child: const Text('Back', style: TextStyle(fontSize: 18)),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Here you can define what 'forward' means in your app context.
-                    Navigator.pushNamed(context, '/nextPage'); // Replace with actual route
-                  },
-                  child: const Text('Next', style: TextStyle(fontSize: 18)),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Implement your edit functionality if necessary
-                    provider.isEditing = true; // For example, toggle an editing mode
-                    provider.notifyListeners(); // Notify listeners for UI updates
-                  },
-                  child: const Text('Edit', style: TextStyle(fontSize: 18)),
-                ),
-              ],
-            ),
           ],
         ),
       ),

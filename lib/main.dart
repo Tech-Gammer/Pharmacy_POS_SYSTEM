@@ -9,6 +9,7 @@ import 'ButtSb_Purchase_page.dart';
 import 'EmployeeSide/Employee_DashBoard.dart';
 import 'EmployeeSide/POS.dart';
 import 'ManagerSide/Manager_DashBoard.dart';
+import 'ManagerSide/add_category.dart';
 import 'ManagerSide/add_item.dart';
 import 'ManagerSide/add_supplier.dart';
 import 'ManagerSide/add_units.dart';
@@ -20,6 +21,7 @@ import 'ManagerSide/total_units.dart';
 import 'Providers/authProvieder.dart';
 import 'Providers/categoryprovider.dart';
 import 'Providers/itemprovider.dart';
+import 'Providers/saleprovider.dart';
 import 'Providers/unitprovider.dart';
 import 'Providers/userprovider.dart';
 import 'auth_pages/Registerpage.dart';
@@ -59,13 +61,13 @@ class MyApp extends StatelessWidget {
           '/add_units': (context) => const Addunit(),
           '/total_units': (context) => const ShowUnit(),
           '/total_items': (context) => const ItemsPage(),
-          '/POS_Page': (context) =>  SalesRegisterPage(),
-          '/add_category': (context) =>  SalesRegisterPage(),
+          '/add_category': (context) =>  Addcategory(),
           '/total_categories': (context) =>  Showcategory(),
           '/total_suppliers': (context) =>  ViewSuppliersPage(),
           '/add_suppliers': (context) =>  AddSupplierPage(),
           '/purchase_page': (context) =>  PurchasePage(),
           '/total_purchases': (context) =>  TotalPurchases(),
+          '/POS_PAGE': (context) =>  POSPage(),
 
         },
         title: 'Pharmacy POS',

@@ -187,6 +187,7 @@ class _AddItemState extends State<AddItem> {
     _total_piecesController.clear();
     _locationController.clear();
     _manufacController.clear();
+    _genericController.clear();
 
     setState(() {
       _netPrice = 0.0;
