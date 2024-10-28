@@ -5,7 +5,6 @@ import 'package:pharmacy_pos_system/Providers/purchaseprovider.dart';
 import 'package:pharmacy_pos_system/Providers/supplierprovider.dart';
 import 'package:pharmacy_pos_system/auth_pages/Loginpage.dart';
 import 'package:provider/provider.dart';
-import 'ButtSb_Purchase_page.dart';
 import 'EmployeeSide/Employee_DashBoard.dart';
 import 'EmployeeSide/POS.dart';
 import 'ManagerSide/Manager_DashBoard.dart';
@@ -33,10 +32,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, // Initialize with the generated options
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => SupplierProvider()),
         ChangeNotifierProvider(create: (_) => PurchaseProvider()),
-        ChangeNotifierProvider(create: (_) => saleProvider()),
+        ChangeNotifierProvider(create: (_) => SaleProvider()),
 
       ],
       child: MaterialApp(

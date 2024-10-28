@@ -14,7 +14,7 @@ class POSPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final provider = Provider.of<saleProvider>(context);
+    final provider = Provider.of<SaleProvider>(context);
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -39,6 +39,8 @@ class POSPage extends StatelessWidget {
               padding: const EdgeInsets.all(10.0),
               child: Row(
                 children: [
+                  const Text("Search Items:"),
+                  const SizedBox(width: 10), // Add some spacing below the heading
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +83,9 @@ class POSPage extends StatelessWidget {
                       ],
                     ),
                   ),
-
+                  const SizedBox(width: 20), // Add some spacing below the heading
+                  const Text("Select Date:"),
+                  const SizedBox(width: 10), // Add some spacing below the heading
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,22 +205,35 @@ class POSPage extends StatelessWidget {
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               TextFormField(
+                                controller: provider.discountController,
                                 keyboardType: TextInputType.number,
                                 onChanged: (newValue) {
-                                  provider.discount = newValue.isNotEmpty ? newValue : '0'; // Handle empty
-                                  provider.calculateTotal(); // Recalculate total
+                                  provider.discount = newValue.isNotEmpty ? double.tryParse(newValue) ?? 0 : 0;
+                                  provider.calculateTotal();
                                 },
                                 decoration: const InputDecoration(
                                   border: OutlineInputBorder(),
                                   hintText: 'Enter Discount (%)',
                                 ),
                               ),
+
                               const SizedBox(height: 20),
+                              const Text(
+                                ' Total After Discount :',
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                '${provider.grandTotal.toStringAsFixed(2)}', // Displaying the grand total
+                                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
+
                               const Text(
                                 'Cash Received:',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               TextFormField(
+                                controller: provider.cashReceivedController,
                                 keyboardType: TextInputType.number,
                                 onChanged: (newValue) {
                                   provider.cashReceived = newValue.isNotEmpty ? double.tryParse(newValue) ?? 0.0 : 0.0;
@@ -275,7 +292,7 @@ class POSPage extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     // Add your save and print logic here
-                    provider.saveAndPrint(); // Example method
+                    provider.saveAndPrint(context); // Example method
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), backgroundColor: Colors.greenAccent,
