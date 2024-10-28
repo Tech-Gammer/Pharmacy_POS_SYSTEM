@@ -108,6 +108,13 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
             Navigator.pushNamed(context, '/total_purchases');
           },
         ),
+        DashboardItem(
+          icon: Icons.work_outline,
+          label: 'POS',
+          onButtonPressed: () {
+            Navigator.pushNamed(context, '/POS_PAGE');
+          },
+        ),
 
         // Add more items as needed
       ],

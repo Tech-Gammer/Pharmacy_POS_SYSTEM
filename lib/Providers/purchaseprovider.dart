@@ -218,7 +218,7 @@ class PurchaseProvider extends ChangeNotifier {
     }
   }
 
-  void calculateTotal() {
+  void calculateTotal()   {
     double totalBeforeDiscount = selectedItems.fold(
       0.0,
           (previousValue, item) => previousValue + item.totalIncludingTax,

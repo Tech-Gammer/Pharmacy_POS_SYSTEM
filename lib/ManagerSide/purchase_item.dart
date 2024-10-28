@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pharmacy_pos_system/Providers/purchaseprovider.dart';
@@ -126,7 +125,6 @@ class PurchasePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
             // Product Search and Selection
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -176,7 +174,6 @@ class PurchasePage extends StatelessWidget {
                 ),
               ],
             ),
-
             // Data Table for Selected Items
             Expanded(
               child: SingleChildScrollView(

@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => SupplierProvider()),
         ChangeNotifierProvider(create: (_) => PurchaseProvider()),
+        ChangeNotifierProvider(create: (_) => saleProvider()),
 
       ],
       child: MaterialApp(
@@ -61,18 +62,16 @@ class MyApp extends StatelessWidget {
           '/add_units': (context) => const Addunit(),
           '/total_units': (context) => const ShowUnit(),
           '/total_items': (context) => const ItemsPage(),
-          '/add_category': (context) =>  Addcategory(),
-          '/total_categories': (context) =>  Showcategory(),
+          '/add_category': (context) =>  const Addcategory(),
+          '/total_categories': (context) =>  const Showcategory(),
           '/total_suppliers': (context) =>  ViewSuppliersPage(),
           '/add_suppliers': (context) =>  AddSupplierPage(),
-          '/purchase_page': (context) =>  PurchasePage(),
-          '/total_purchases': (context) =>  TotalPurchases(),
-          '/POS_PAGE': (context) =>  POSPage(),
-
+          '/purchase_page': (context) =>  const PurchasePage(),
+          '/total_purchases': (context) =>  const TotalPurchases(),
+          '/POS_PAGE': (context) =>  const POSPage(),
         },
         title: 'Pharmacy POS',
         initialRoute: '/login', // Set the initial route to the login page
-        // home: Navigator.pushNamed(context, routeName),
       ),
     );
   }
