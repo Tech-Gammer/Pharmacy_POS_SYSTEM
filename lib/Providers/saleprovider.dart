@@ -772,7 +772,7 @@ class SaleProvider extends ChangeNotifier {
   //   notifyListeners(); // Notify listeners if there are changes
   // }
 
-
+//sadjasakl
 
 
   Future<Map<String, dynamic>?> getSaleByTransactionId(String transactionId) async {
