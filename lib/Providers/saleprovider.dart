@@ -9,7 +9,6 @@ import 'package:pdf/widgets.dart' as pw; // Use an alias for the pdf package
 import 'package:printing/printing.dart';
 import 'dart:html' as html; // Import for web functionalities
 import 'package:flutter/foundation.dart'; // Import for kIsWeb
-
 import '../Models/selecteditemmodel.dart';
 
 class SaleProvider extends ChangeNotifier {
@@ -62,6 +61,8 @@ class SaleProvider extends ChangeNotifier {
             landingCost: double.parse(item['purchase_price']?.toString() ?? '0.0'),
             totalPiecesPerBox: item['total_pieces_per_box'] ?? 0,
             ratePerTab: double.parse(item['ratePerTab']?.toString() ?? '0.0'),
+            totalPieces: item['total_pieces'] ?? 0, // Get total_pieces from database
+
           );
         }).toList();
         filteredItems = List.from(items);
@@ -133,17 +134,15 @@ class SaleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Get current user
   User? getCurrentUser() {
     return FirebaseAuth.instance.currentUser; // Get current user
   }
 
-  // Get current user ID
   String getCurrentUserId() {
     User? user = FirebaseAuth.instance.currentUser; // Get current user
     return user != null ? user.uid : ''; // Return user ID or empty string if not logged in
   }
-  // Get current user name
+
   Future<String> getCurrentUserName() async {
     User? user = FirebaseAuth.instance.currentUser; // Get the current user
     if (user != null) {
@@ -163,7 +162,6 @@ class SaleProvider extends ChangeNotifier {
     return 'Guest'; // Default return if user is not found
   }
 
-
   void clearSaleData() {
     selectedItems.clear();
     saleDateController.clear();
@@ -178,44 +176,7 @@ class SaleProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
-  // Future<String?> saveSaleAndGetId() async {
-  //   if (selectedItems.isEmpty) {
-  //     return '';
-  //   }
-  //
-  //   // Generate a unique sale ID
-  //   final saleId = databaseRef.child('sales').push().key;
-  //
-  //   final saleData = {
-  //     'saleId': saleId, // Include the auto-generated sale ID
-  //     'date': saleDateController.text,
-  //     'items': selectedItems.map((item) => {
-  //       'name': item.name,
-  //       'price': item.ratePerTab.toString(),
-  //       'quantity': item.qty.toString(),
-  //       'subtotal': (item.ratePerTab * item.qty).toString(),
-  //     }).toList(),
-  //     'total': total.toString(),
-  //     'discount': discount.toString(),
-  //     'cashReceived': cashReceived.toString(),
-  //     'grandTotal': grandTotal.toString(),
-  //     'remainingBalance': remainingbalance.toString(),
-  //     'userId': getCurrentUserId(), // Add current user ID
-  //   };
-  //
-  //   try {
-  //     // Save the sale data with the unique ID
-  //     await databaseRef.child('sales').child(saleId!).set(saleData);
-  //     notifyListeners();
-  //     return saleId; // Return the sale ID
-  //   } catch (e) {
-  //     print('Error saving sale: $e');
-  //     return '';
-  //   }
-  // }
-
-  Future<String?> saveSale() async {
+  Future<String?> saveSale(BuildContext context) async {
     if (selectedItems.isEmpty) {
       return null;
     }
@@ -228,16 +189,20 @@ class SaleProvider extends ChangeNotifier {
       final lastSale = snapshot.value as Map<dynamic, dynamic>;
       final lastId = lastSale.entries.first.value['transactionID'];
       lastTransactionId = int.tryParse(lastId ?? '0') ?? 0;
-
     }
 
     // Generate the next transaction ID
-    final newTransactionId = (lastTransactionId + 1).toString().padLeft(5, '0');
+    final newTransactionId = (lastTransactionId + 1).toString();
+    final currentDateTime = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(currentDateTime); // Format date
+    final formattedTime = DateFormat('HH:mm:ss').format(currentDateTime); // Format time
 
     final saleData = {
       'transactionID': newTransactionId,
       'date': saleDateController.text,
+      'time': formattedTime, // Add the formatted time
       'items': selectedItems.map((item) => {
+        'itemID':item.id,
         'name': item.name,
         'price': item.ratePerTab.toString(),
         'quantity': item.qty.toString(),
@@ -251,8 +216,91 @@ class SaleProvider extends ChangeNotifier {
       'userId': getCurrentUserId(),
     };
 
+    // Check quantities before saving
+    for (var item in selectedItems) {
+      final itemRef = databaseRef.child('items/${item.id}');
+      final itemSnapshot = await itemRef.get();
+
+      if (itemSnapshot.exists) {
+        final itemData = itemSnapshot.value as Map<dynamic, dynamic>;
+        int currentQuantity = itemData['total_pieces'] as int;
+        int minimumQuantity = itemData['minimum_quantity'] as int;
+
+        // Check if the requested quantity exceeds the available quantity
+        if (item.qty > currentQuantity) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("Insufficient Quantity"),
+              content: Text("You cannot sell ${item.qty} of ${item.name} because only $currentQuantity pieces are available."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+          return null;
+        }
+
+        // Check if the quantity is zero
+        if (currentQuantity == 0) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("Cannot Sell Item"),
+              content: Text("You cannot sell ${item.name} because its quantity is zero."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+          return null;
+        }
+
+        // Check if the quantity is less than or equal to the minimum quantity
+        if (currentQuantity <= minimumQuantity) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("Low Stock Warning"),
+              content: Text("The quantity of ${item.name} is low (only $currentQuantity left)."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    }
+
     try {
+      // Save the sale data
       await databaseRef.child('sales').push().set(saleData);
+
+      // Update the `total_pieces` in the `items` node
+      for (var item in selectedItems) {
+        final itemRef = databaseRef.child('items/${item.id}/total_pieces');
+        final itemSnapshot = await itemRef.get();
+
+        if (itemSnapshot.exists) {
+          int currentQuantity = itemSnapshot.value as int;
+          int newQuantity = currentQuantity - item.qty;
+
+          // Ensure new quantity is not negative
+          if (newQuantity < 0) newQuantity = 0;
+
+          await itemRef.set(newQuantity);
+        }
+      }
+
       notifyListeners();
       return newTransactionId; // Return the transaction ID
     } catch (e) {
@@ -261,12 +309,9 @@ class SaleProvider extends ChangeNotifier {
     }
   }
 
-
   Future<void> saveAndPrint(BuildContext context) async {
-    // Save the sale first and get the sale ID
-    // String? saleId = await saveSaleAndGetId(); // Modify the saveSale method to return the sale ID
-    // Call saveSale and retrieve the transaction ID
-    String? transactionId = await saveSale();
+
+    String? transactionId = await saveSale(context);
     if (transactionId == null) {
       // Handle the error if the transaction ID wasn't generated (e.g., show an error message)
       ScaffoldMessenger.of(context).showSnackBar(
@@ -287,7 +332,7 @@ class SaleProvider extends ChangeNotifier {
     double posCharges = 1.0; // POS charges
     double grandTotal = totalAfterDiscount + posCharges; // Calculate grand total
 
-    const pdfPageFormat = PdfPageFormat(80 * PdfPageFormat.mm, double.infinity); // 80 mm width, unlimited height
+    const pdfPageFormat = PdfPageFormat(70 * PdfPageFormat.mm, double.infinity); // 80 mm width, unlimited height
 
     // Add content to the PDF (customize as needed)
     pdf.addPage(
@@ -301,34 +346,29 @@ class SaleProvider extends ChangeNotifier {
             pw.Center(
               child: pw.Text(
                 'Mughal Pharmacy',
-                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
               ),
             ),
             pw.Center(
               child: pw.Text('With Us, It\'s Most Personal'),
             ),
             pw.SizedBox(height: 10),
-            pw.Text('Store#: 1384'),
-            pw.Text('Alam Chow Gujranwala'),
-            pw.Text('Punjab Pakistan'),
-            pw.Text('+92 307-6455926'),
+            pw.Text('Store#: 1384',style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('Alam Chow Gujranwala',style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('Punjab Pakistan',style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('+92 307-6455926',style: const pw.TextStyle(fontSize: 10)),
             pw.SizedBox(height: 10),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text('Register #47', style: const pw.TextStyle(fontSize: 10)),
-                pw.Text('Transaction #$transactionId', style: const pw.TextStyle(fontSize: 10)), // Display Sale ID
-              ],
-            ),
-            pw.Text('Cashier: $cashierName', style: const pw.TextStyle(fontSize: 12)), // Display current user name
-            pw.Text('Date: $formattedDate    Time: $formattedTime'), // Current date and time
+            pw.Text('Register #47', style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('Transaction #$transactionId', style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('Cashier: $cashierName', style: const pw.TextStyle(fontSize: 10)), // Display current user name
+            pw.Text('Date: $formattedDate    Time: $formattedTime',style: const pw.TextStyle(fontSize: 10)), // Current date and time
             pw.Divider(),
             pw.Text('Items:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             ...selectedItems.map((item) => pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
               children: [
-                pw.Text('${item.qty} x ${item.name} @ ${item.ratePerTab.toStringAsFixed(2)} rs'), // Display quantity, item name, and rate per tab
-                pw.Text(' ${(item.ratePerTab * item.qty).toStringAsFixed(2)} rs'),
+                pw.Text('${item.qty} x ${item.name} @ ${item.ratePerTab.toStringAsFixed(2)} rs',style: const pw.TextStyle(fontSize: 10)), // Display quantity, item name, and rate per tab
+                pw.Text(' ${(item.ratePerTab * item.qty).toStringAsFixed(2)} rs',style: const pw.TextStyle(fontSize: 10)),
               ],
             )),
             pw.Divider(),
@@ -380,12 +420,12 @@ class SaleProvider extends ChangeNotifier {
               child: pw.BarcodeWidget(
                 barcode: pw.Barcode.code128(),
                 data: '95543358064310030',
-                width: 200,
-                height: 60,
+                width: 150,
+                height: 50,
               ),
             ),
             pw.Center(
-              child: pw.Text('THANKS FOR SHOPPING WITH US'),
+              child: pw.Text('THANKS FOR SHOPPING WITH US', style: const pw.TextStyle(fontSize: 8)),
             ),
           ],
         ),
@@ -421,4 +461,111 @@ class SaleProvider extends ChangeNotifier {
     notifyListeners(); // Notify listeners if there are changes
   }
 
+  Future<Map<String, dynamic>?> getSaleByTransactionId(String transactionId) async {
+    final snapshot = await databaseRef.child('sales').get();
+
+    if (snapshot.exists) {
+      final salesMap = snapshot.value as Map<dynamic, dynamic>;
+
+      for (var key in salesMap.keys) {
+        final sale = salesMap[key] as Map<dynamic, dynamic>;
+
+        if (sale['transactionID'] == transactionId) {
+          return sale.cast<String, dynamic>(); // Ensure correct type
+        }
+      }
+    }
+    return null; // Return null if no sale found with the given transactionID
+  }
+
+  Future<void> returnItem(String transactionId, String itemId, int quantity) async {
+    final saleRef = databaseRef.child('sales');
+    final itemRef = databaseRef.child('items/$itemId/total_pieces');
+
+    // Step 1: Get the sale details by transaction ID
+    final saleSnapshot = await saleRef.orderByChild('transactionID').equalTo(transactionId).get();
+
+    if (saleSnapshot.exists) {
+      final salesMap = saleSnapshot.value as Map<dynamic, dynamic>;
+
+      for (var key in salesMap.keys) {
+        final sale = salesMap[key] as Map<dynamic, dynamic>;
+        final items = sale['items'] as List<dynamic>;
+
+        // Step 2: Update the item quantities
+        for (var item in items) {
+          if (item['itemID'] == itemId) {
+            int currentQuantity = int.tryParse(item['quantity'].toString()) ?? 0;
+            int newQuantity = currentQuantity - quantity;
+
+            if (newQuantity < 0) {
+              throw Exception("Cannot return more than sold. Available: $currentQuantity, Attempted: $quantity");
+            }
+
+            item['quantity'] = newQuantity.toString();
+            item['subtotal'] = (newQuantity * double.parse(item['price'])).toString(); // Update item subtotal
+
+            await saleRef.child(key).update({'items': items}); // Update the sale with new quantities
+
+            // Update the total pieces in the items node
+            final itemSnapshot = await itemRef.get();
+            if (itemSnapshot.exists) {
+              int currentTotalPieces = int.tryParse(itemSnapshot.value.toString()) ?? 0;
+              await itemRef.set(currentTotalPieces + quantity); // Add returned quantity to total pieces
+            }
+            // Step 3: Add return date and time
+            String returnDateTime = DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now());
+            // String returnTime = DateFormat('HH:mm:ss').format(DateTime.now());
+
+            await saleRef.child(key).update({
+              'returnDateTime': returnDateTime,
+              // 'returnTime': returnTime,
+            });
+
+            // Step 4: Recalculate the totals
+            await _recalculateSaleTotals(saleRef, key, items, sale['cashReceived'], sale['discount']);
+            break; // Exit after updating the matched item
+          }
+        }
+      }
+
+      notifyListeners(); // Update the UI to reflect changes in totals
+    } else {
+      throw Exception("Sale not found for transaction ID $transactionId");
+    }
+  }
+
+  Future<void> _recalculateSaleTotals(DatabaseReference saleRef, String saleKey, List<dynamic> items, String cashReceived, String discount) async {
+    double total = 0.0;
+    // Calculate the new total based on updated item quantities and prices
+    for (var item in items) {
+      int quantity = int.tryParse(item['quantity'].toString()) ?? 0;
+      double price = double.tryParse(item['price'].toString()) ?? 0.0;
+      total += price * quantity;
+    }
+
+    // Parse discount and cashReceived from strings
+    // double discountAmount = double.tryParse(discount) ?? 0.0;
+    double discountPercentage = double.tryParse(discount) ?? 0.0;
+    double cashReceivedAmount = double.tryParse(cashReceived) ?? 0.0;
+
+    // Calculate discount amount based on percentage
+    double discountAmount = (total * discountPercentage) / 100;
+
+    // Calculate grand total
+    double grandTotal = total - discountAmount;
+    double remainingBalance = cashReceivedAmount - grandTotal;
+    String returnDateTime = DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now());
+
+    // Step 4: Update the sale record in the database
+    await saleRef.child(saleKey).update({
+      'returnDateTime': returnDateTime,
+      'total': total.toString(),
+      'grandTotal': grandTotal.toString(),
+      'remainingBalance': remainingBalance.toString(),
+      'cashReceived': cashReceivedAmount.toString(), // if cashReceived needs updating
+      'items': items, // Update all items with new subtotal values
+      // Add any other necessary updates here
+    });
+  }
 }

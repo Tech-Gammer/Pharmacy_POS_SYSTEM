@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 import '../Models/selecteditemmodel.dart';
 import '../Providers/saleprovider.dart';
 
@@ -19,17 +18,15 @@ class POSPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Row(
-          children: [
-            Text(
-              'POS Page',
-              style: TextStyle(color: Colors.black),
-            ),
-          ],
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/employeepage');
+          },
+          icon: const Icon(Icons.arrow_back),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text('POS PAGE'),
+        backgroundColor: Colors.teal,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -70,7 +67,11 @@ class POSPage extends StatelessWidget {
                               itemBuilder: (context, index) {
                                 final item = provider.displayedItems[index];
                                 return ListTile(
-                                  title: Text(item.name),
+                                  title: Row(
+                                    children: [
+                                      Text('${item.name} (Available: ${item.totalPieces})'), // Display name and total_pieces
+                                    ],
+                                  ),
                                   onTap: () {
                                     provider.updateSelectedItem(item as Item); // Add item to selectedItems
                                     provider.searchController.clear();
@@ -126,9 +127,9 @@ class POSPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Heading Row
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Expanded(child: Center(child: Text('Product List', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)))),
                     // You can add more headings here if necessary
                   ],
@@ -162,7 +163,7 @@ class POSPage extends StatelessWidget {
                                   ),
                                 ),
                                 DataCell(Text(selectedItem.name)),
-                                DataCell(Text('${selectedItem.ratePerTab?.toStringAsFixed(2) ?? '0.00'}')),
+                                DataCell(Text('${selectedItem.ratePerTab.toStringAsFixed(2) ?? '0.00'}')),
                                 DataCell(
                                   TextFormField(
                                     initialValue: selectedItem.qty.toString(),
@@ -279,26 +280,49 @@ class POSPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // ElevatedButton(
+                //   onPressed: () {
+                //     // Add your save and print logic here
+                //     provider.saveAndPrint(context); // Example method
+                //   },
+                //   style: ElevatedButton.styleFrom(
+                //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), backgroundColor: Colors.greenAccent,
+                //   ),
+                //   child: const Text('Save and Print'),
+                // ),
                 ElevatedButton(
                   onPressed: () {
-                    // Add your save sale logic here
-                    provider.saveSale(); // Example method
+                    if (provider.saleDateController.text.isEmpty) {
+                      // Show an alert if date is not selected
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text("Date Not Selected"),
+                            content: const Text("Please select a sale date before proceeding."),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("OK"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      // Proceed with save and print if date is selected
+                      provider.saveAndPrint(context);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), backgroundColor: Colors.blueAccent,
-                  ),
-                  child: const Text('Save Sale'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Add your save and print logic here
-                    provider.saveAndPrint(context); // Example method
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), backgroundColor: Colors.greenAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    backgroundColor: Colors.greenAccent,
                   ),
                   child: const Text('Save and Print'),
                 ),
+
               ],
             ),
             const SizedBox(height: 20), // Add some spacing below the buttons

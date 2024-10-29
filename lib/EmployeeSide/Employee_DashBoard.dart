@@ -74,9 +74,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
         ),
         DashboardItem(
           icon: Icons.work_outline,
-          label: 'Departments',
+          label: 'Sales Return' ,
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totaldepartments');
+            Navigator.pushNamed(context, '/sales_return');
           },
         ),
         // Add other DashboardItems as needed

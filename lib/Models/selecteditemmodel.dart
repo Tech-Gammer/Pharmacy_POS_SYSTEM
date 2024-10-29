@@ -11,7 +11,6 @@ class SelectedItem {
   int qty;
   double ratePerTab; // Make sure this is defined
 
-
   SelectedItem({
     required this.id,
     required this.name,
@@ -36,6 +35,7 @@ class Item {
   final double landingCost; // Add landingCost
   final int totalPiecesPerBox; // Add this property
   final double ratePerTab;
+  final int totalPieces; // Add this property
 
   Item({
     required this.id,
@@ -45,6 +45,8 @@ class Item {
     required this.sellingRate, // Add sellingRate to constructor
     required this.landingCost, // Add landingCost to constructor
     required this.totalPiecesPerBox,
-    required this.ratePerTab
+    required this.ratePerTab,
+    required this.totalPieces, // Initialize this property
+
   });
 }

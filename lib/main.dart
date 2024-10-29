@@ -7,6 +7,7 @@ import 'package:pharmacy_pos_system/auth_pages/Loginpage.dart';
 import 'package:provider/provider.dart';
 import 'EmployeeSide/Employee_DashBoard.dart';
 import 'EmployeeSide/POS.dart';
+import 'EmployeeSide/salesreturn.dart';
 import 'ManagerSide/Manager_DashBoard.dart';
 import 'ManagerSide/add_category.dart';
 import 'ManagerSide/add_item.dart';
@@ -70,6 +71,8 @@ class MyApp extends StatelessWidget {
           '/purchase_page': (context) =>  const PurchasePage(),
           '/total_purchases': (context) =>  const TotalPurchases(),
           '/POS_PAGE': (context) =>  const POSPage(),
+          '/sales_return': (context) =>   SalesReturnSearchScreen(),
+
         },
         title: 'Pharmacy POS',
         initialRoute: '/login', // Set the initial route to the login page
