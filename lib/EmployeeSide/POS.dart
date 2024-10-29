@@ -280,16 +280,6 @@ class POSPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // ElevatedButton(
-                //   onPressed: () {
-                //     // Add your save and print logic here
-                //     provider.saveAndPrint(context); // Example method
-                //   },
-                //   style: ElevatedButton.styleFrom(
-                //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), backgroundColor: Colors.greenAccent,
-                //   ),
-                //   child: const Text('Save and Print'),
-                // ),
                 ElevatedButton(
                   onPressed: () {
                     if (provider.saleDateController.text.isEmpty) {
@@ -313,7 +303,7 @@ class POSPage extends StatelessWidget {
                       );
                     } else {
                       // Proceed with save and print if date is selected
-                      provider.saveAndPrint(context);
+                      provider.saveSale(context);
                     }
                   },
                   style: ElevatedButton.styleFrom(
