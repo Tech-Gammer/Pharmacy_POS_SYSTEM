@@ -82,9 +82,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
         // Add other DashboardItems as needed
         DashboardItem(
           icon: Icons.people_alt_outlined,
-          label: 'Managers',
+          label: 'Total Sales',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totalmanagers');
+            Navigator.pushNamed(context, '/total_sales');
             // Navigator.push(context, MaterialPageRoute(builder: (context)=>const ManagersListPage()));
           },
         ),

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'EmployeeSide/Employee_DashBoard.dart';
 import 'EmployeeSide/POS.dart';
 import 'EmployeeSide/salesreturn.dart';
+import 'EmployeeSide/total_sales.dart';
 import 'ManagerSide/Manager_DashBoard.dart';
 import 'ManagerSide/add_category.dart';
 import 'ManagerSide/add_item.dart';
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
           '/total_purchases': (context) =>  const TotalPurchases(),
           '/POS_PAGE': (context) =>  const POSPage(),
           '/sales_return': (context) =>   SalesReturnSearchScreen(),
+          '/total_sales': (context) =>   SalesListPage(),
 
         },
         title: 'Pharmacy POS',

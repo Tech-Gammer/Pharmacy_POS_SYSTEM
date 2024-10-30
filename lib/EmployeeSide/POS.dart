@@ -303,7 +303,7 @@ class POSPage extends StatelessWidget {
                       );
                     } else {
                       // Proceed with save and print if date is selected
-                      provider.saveSale(context);
+                      provider.saveAndPrint(context);
                     }
                   },
                   style: ElevatedButton.styleFrom(
