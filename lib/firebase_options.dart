@@ -85,5 +85,6 @@ class DefaultFirebaseOptions {
     authDomain: 'pharmacy-pos-system.firebaseapp.com',
     storageBucket: 'pharmacy-pos-system.appspot.com',
     measurementId: 'G-S68RV1N9S1',
+    databaseURL: 'https://pharmacy-pos-system-default-rtdb.firebaseio.com/'
   );
 }

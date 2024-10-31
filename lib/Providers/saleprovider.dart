@@ -564,17 +564,32 @@ class SaleProvider extends ChangeNotifier {
         ..setAttribute('download', 'receipt_${DateTime.now()}.pdf')
         ..click();
 
-      // Open the PDF in a new tab
-      // html.window.open(url, '_blank');
-
-      // Delay before showing the print dialog
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Show the print dialog
-      html.window.print();
+      // // Open the PDF in a new tab
+      // // html.window.open(url, '_blank');
+      //
+      // // Delay before showing the print dialog
+      // await Future.delayed(const Duration(milliseconds: 500));
+      //
+      // // Show the print dialog
+      // html.window.print();
 
       // Revoke object URL to free memory
-      html.Url.revokeObjectUrl(url);
+      // Handle PDF download for web
+      if (kIsWeb) {
+        final pdfBytes = await pdf.save();
+        final blob = html.Blob([pdfBytes], 'application/pdf');
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        final anchor = html.AnchorElement(href: url)
+          ..setAttribute('download', 'receipt_${DateTime.now()}.pdf')
+          ..click();
+
+        // Delay before showing the print dialog to allow full PDF rendering
+        await Future.delayed(const Duration(seconds: 1)); // Increase delay if needed
+
+        // Show the print dialog
+        html.window.print();
+
+        html.Url.revokeObjectUrl(url);
       print(selectedItems);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -589,4 +604,4 @@ class SaleProvider extends ChangeNotifier {
 
     notifyListeners(); // Notify listeners if there are changes
   }
-}
+}}
