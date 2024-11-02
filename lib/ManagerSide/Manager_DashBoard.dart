@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Providers/userprovider.dart';
 import '../Front_side/drawerfile.dart';
+import '../Reports/Purchase Report/purchase_report_dashboard.dart';
+import '../Reports/Reports for Manager/sales_report_dashboardmanager.dart';
 
 
 class ManagerDashboard extends StatefulWidget {
@@ -108,13 +110,20 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
             Navigator.pushNamed(context, '/total_purchases');
           },
         ),
-        // DashboardItem(
-        //   icon: Icons.work_outline,
-        //   label: 'POS',
-        //   onButtonPressed: () {
-        //     Navigator.pushNamed(context, '/POS_PAGE');
-        //   },
-        // ),
+        DashboardItem(
+          icon: Icons.work_outline,
+          label: 'Purchase Reports',
+          onButtonPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const PurchaseDashboard()));
+          },
+        ),
+        DashboardItem(
+          icon: Icons.work_outline,
+          label: 'Sales Reports',
+          onButtonPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>SaleDashboardManager()));
+          },
+        ),
 
         // Add more items as needed
       ],

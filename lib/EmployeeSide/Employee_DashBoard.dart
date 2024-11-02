@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Providers/userprovider.dart';
 import '../Front_side/drawerfile.dart';
+import '../Reports/Purchase Report/purchase_report_dashboard.dart';
+import '../Reports/Purchase Report/purchase_reports.dart';
+import '../Reports/Sales Reports/sales_report_dashboard.dart';
 
 
 class EmployeeDashboard extends StatefulWidget {
@@ -88,28 +91,20 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
             // Navigator.push(context, MaterialPageRoute(builder: (context)=>const ManagersListPage()));
           },
         ),
+        // DashboardItem(
+        //   icon: Icons.rule,
+        //   label: 'Purchase Repo',
+        //   onButtonPressed: () {
+        //     Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseDashboard()));
+        //   },
+        // ),
         DashboardItem(
           icon: Icons.rule,
-          label: 'Terminations',
+          label: 'Sales Repo',
           onButtonPressed: () {
-            Navigator.pushNamed(context, '/totalresticated');
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>SaleDashboard()));
           },
         ),
-        DashboardItem(
-          icon: Icons.rule,
-          label: 'Goal Assignments',
-          onButtonPressed: () {
-            Navigator.pushNamed(context, '/goalassignments');
-          },
-        ),DashboardItem(
-          icon: Icons.rule,
-          label: 'Total Goals',
-          onButtonPressed: () {
-            Navigator.pushNamed(context, '/totalgoalslist');
-          },
-        ),
-
-        // Add more items as needed
       ],
     );
   }

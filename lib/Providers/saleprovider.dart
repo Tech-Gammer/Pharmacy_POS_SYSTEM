@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -5,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw; // Use an alias for the pdf package
-import 'package:printing/printing.dart';
 import 'dart:html' as html; // Import for web functionalities
 import 'package:flutter/foundation.dart'; // Import for kIsWeb
+import 'package:printing/printing.dart';
 import '../Models/selecteditemmodel.dart';
 
 
@@ -595,4 +596,6 @@ class SaleProvider extends ChangeNotifier {
 
     notifyListeners(); // Notify listeners if there are changes
   }
+
+
 }
