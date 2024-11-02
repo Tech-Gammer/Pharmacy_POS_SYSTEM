@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pharmacy_pos_system/ManagerSide/superadminmodel.dart';
 import 'package:provider/provider.dart';
 import '../Providers/userprovider.dart';
 import '../Front_side/drawerfile.dart';
@@ -122,6 +123,13 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
           label: 'Sales Reports',
           onButtonPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>SaleDashboardManager()));
+          },
+        ),
+        DashboardItem(
+          icon: Icons.work_outline,
+          label: 'Super Admin Panel',
+          onButtonPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>SuperAdminPage()));
           },
         ),
 

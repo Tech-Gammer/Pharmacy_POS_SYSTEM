@@ -51,7 +51,8 @@ class _RegisterPageState extends State<RegisterPage> {
         phone: phonec.text.trim(),
         password: pass.text.trim(), // Store the plain password (optional: hash it later)
         role: '', // The role will be assigned in the provider
-        uid: uid
+        uid: uid,
+          isActive: true
       );
 
       // Register the user in Firebase Realtime Database
