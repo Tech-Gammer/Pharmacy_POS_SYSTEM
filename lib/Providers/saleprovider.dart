@@ -9,7 +9,6 @@ import 'package:printing/printing.dart';
 import 'dart:html' as html; // Import for web functionalities
 import 'package:flutter/foundation.dart'; // Import for kIsWeb
 import '../Models/selecteditemmodel.dart';
-import 'dart:js' as js;
 
 
 class SaleProvider extends ChangeNotifier {
@@ -202,19 +201,18 @@ class SaleProvider extends ChangeNotifier {
     }
 
     // Generate the next transaction ID
-    // final newTransactionId = (lastTransactionId + 1).toString();
     generatetransactionNumber(); // This sets saleNumber
 
     final currentDateTime = DateTime.now();
-    final formattedDate = DateFormat('yyyy-MM-dd').format(currentDateTime); // Format date
-    final formattedTime = DateFormat('HH:mm:ss').format(currentDateTime); // Format time
+    final formattedDate = DateFormat('yyyy-MM-dd').format(currentDateTime);
+    final formattedTime = DateFormat('HH:mm:ss').format(currentDateTime);
 
     final saleData = {
       'transactionID': saleNumber,
       'date': saleDateController.text,
-      'time': formattedTime, // Add the formatted time
+      'time': formattedTime,
       'items': selectedItems.map((item) => {
-        'itemID':item.id,
+        'itemID': item.id,
         'name': item.name,
         'price': item.ratePerTab.toString(),
         'quantity': item.qty.toString(),
@@ -233,10 +231,10 @@ class SaleProvider extends ChangeNotifier {
       final itemRef = databaseRef.child('items/${item.id}');
       final itemSnapshot = await itemRef.get();
 
-      if (itemSnapshot.exists) {
+      if (itemSnapshot.exists && itemSnapshot.value != null) {
         final itemData = itemSnapshot.value as Map<dynamic, dynamic>;
-        int currentQuantity = itemData['total_pieces'] as int;
-        int minimumQuantity = itemData['minimum_quantity'] as int;
+        int currentQuantity = itemData['total_pieces'] as int? ?? 0; // Use null-aware operator
+        int minimumQuantity = itemData['minimum_quantity'] as int? ?? 0; // Use null-aware operator
 
         // Check if the requested quantity exceeds the available quantity
         if (item.qty > currentQuantity) {
@@ -297,24 +295,30 @@ class SaleProvider extends ChangeNotifier {
       // Save the sale data
       await databaseRef.child('sales').push().set(saleData);
 
-      // Update the `total_pieces` in the `items` node
+      // Update the `total_pieces` and `box_qty` in the `items` node
       for (var item in selectedItems) {
-        final itemRef = databaseRef.child('items/${item.id}/total_pieces');
+        final itemRef = databaseRef.child('items/${item.id}');
         final itemSnapshot = await itemRef.get();
 
-        if (itemSnapshot.exists) {
-          int currentQuantity = itemSnapshot.value as int;
+        if (itemSnapshot.exists && itemSnapshot.value != null) {
+          final itemData = itemSnapshot.value as Map<dynamic, dynamic>;
+          int currentQuantity = itemData['total_pieces'] as int? ?? 0; // Use null-aware operator
+          int totalPiecesPerBox = itemData['total_pieces_per_box'] as int? ?? 1; // Avoid division by zero
+
           int newQuantity = currentQuantity - item.qty;
 
           // Ensure new quantity is not negative
           if (newQuantity < 0) newQuantity = 0;
 
-          await itemRef.set(newQuantity);
+          await itemRef.child('total_pieces').set(newQuantity);
+
+          // Calculate and update box_qty
+          int boxQty = (newQuantity / totalPiecesPerBox).floor();
+          await itemRef.child('box_qty').set(boxQty.toStringAsFixed(2)); // Save to 2 decimal places
         }
       }
 
       notifyListeners();
-      // return newTransactionId; // Return the transaction ID
       return saleNumber; // Return the timestamp-based transaction ID
 
     } catch (e) {
@@ -564,30 +568,17 @@ class SaleProvider extends ChangeNotifier {
         ..setAttribute('download', 'receipt_${DateTime.now()}.pdf')
         ..click();
 
-      // // Open the PDF in a new tab
-      // // html.window.open(url, '_blank');
-      //
-      // // Delay before showing the print dialog
-      // await Future.delayed(const Duration(milliseconds: 500));
-      //
-      // // Show the print dialog
-      // html.window.print();
+      // Open the PDF in a new tab
+      // html.window.open(url, '_blank');
+
+      // Delay before showing the print dialog
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Show the print dialog
+      html.window.print();
 
       // Revoke object URL to free memory
       // Handle PDF download for web
-      if (kIsWeb) {
-        final pdfBytes = await pdf.save();
-        final blob = html.Blob([pdfBytes], 'application/pdf');
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.AnchorElement(href: url)
-          ..setAttribute('download', 'receipt_${DateTime.now()}.pdf')
-          ..click();
-
-        // Delay before showing the print dialog to allow full PDF rendering
-        await Future.delayed(const Duration(seconds: 1)); // Increase delay if needed
-
-        // Show the print dialog
-        html.window.print();
 
         html.Url.revokeObjectUrl(url);
       print(selectedItems);
@@ -604,4 +595,4 @@ class SaleProvider extends ChangeNotifier {
 
     notifyListeners(); // Notify listeners if there are changes
   }
-}}
+}

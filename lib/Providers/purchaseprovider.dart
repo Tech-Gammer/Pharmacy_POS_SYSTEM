@@ -279,10 +279,6 @@ class PurchaseProvider extends ChangeNotifier {
 
       double remainingBalance = totalAmount - cashPaid;
 
-      // Calculate total box quantity and total pieces
-      int totalBoxQty = selectedItems.fold(0, (sum, item) => sum + item.qty);
-      int totalPieces = 0;
-
       // Create a purchase entry
       Map<String, dynamic> purchaseData = {
         'supplier': selectedSupplier,
@@ -291,14 +287,15 @@ class PurchaseProvider extends ChangeNotifier {
         'totalAmount': totalAmount,
         'cashpaid': cashPaid,
         'remainingBalance': remainingBalance,
-        'box_qty': totalBoxQty, // Save the total box quantity outside of items
+        'box_qty': 0, // Initialize box_qty, to be updated later
         'total_pieces': 0, // Initialize total pieces here, to be updated later
         'items': [], // List to store item details
       };
 
       // Loop through selected items and add to purchase data
+      int totalPieces = 0;
       for (var item in selectedItems) {
-        int itemTotalPieces = (item.qty * item.totalPiecesPerBox) as int;
+        int itemTotalPieces = (item.qty * item.totalPiecesPerBox).toInt();
         totalPieces += itemTotalPieces;
 
         Map<String, dynamic> itemData = {
@@ -343,8 +340,9 @@ class PurchaseProvider extends ChangeNotifier {
         });
       }
 
-
+      // Update total_pieces and box_qty in purchaseData
       purchaseData['total_pieces'] = totalPieces;
+      purchaseData['box_qty'] = (totalPieces / selectedItems.first.totalPiecesPerBox).toInt(); // Calculate total box quantity
 
       // Save the purchase to the database using the generated key
       await databaseRef.child('purchases/$purchaseId').set(purchaseData);

@@ -74,7 +74,6 @@ class MyApp extends StatelessWidget {
           '/POS_PAGE': (context) =>  const POSPage(),
           '/sales_return': (context) =>   SalesReturnSearchScreen(),
           '/total_sales': (context) =>   SalesListPage(),
-
         },
         title: 'Pharmacy POS',
         initialRoute: '/login', // Set the initial route to the login page
@@ -82,3 +81,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

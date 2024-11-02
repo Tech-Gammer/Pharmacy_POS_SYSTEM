@@ -177,6 +177,7 @@ class PurchasePage extends StatelessWidget {
             // Data Table for Selected Items
             Expanded(
               child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: const [
                     DataColumn(label: Text('Action')),
