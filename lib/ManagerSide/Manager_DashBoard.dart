@@ -69,14 +69,14 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
       padding: const EdgeInsets.all(16.0), // Add padding if necessary
       children: [
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.medical_information,
           label: 'Medicines',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/total_items');
           },
         ),
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.ad_units_sharp,
           label: 'Units',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/total_units');
@@ -84,7 +84,7 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
         ),
         // Add other DashboardItems as needed
         DashboardItem(
-          icon: Icons.people_alt_outlined,
+          icon: Icons.category,
           label: 'Categories',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/total_categories');
@@ -92,41 +92,41 @@ class _ManagerDashboardState extends State<ManagerDashboard> with SingleTickerPr
           },
         ),
         DashboardItem(
-          icon: Icons.rule,
+          icon: Icons.inbox,
           label: 'Suppliers',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/total_suppliers');
           },
         ),
         DashboardItem(
-          icon: Icons.rule,
+          icon: Icons.get_app_sharp,
           label: 'Purchases',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/purchase_page');
           },
         ),DashboardItem(
-          icon: Icons.rule,
+          icon: Icons.list,
           label: 'Total Purchases',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/total_purchases');
           },
         ),
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.report_gmailerrorred_sharp,
           label: 'Purchase Reports',
           onButtonPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>const PurchaseDashboard()));
           },
         ),
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.report_gmailerrorred_outlined,
           label: 'Sales Reports',
           onButtonPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>SaleDashboardManager()));
           },
         ),
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.admin_panel_settings,
           label: 'Super Admin Panel',
           onButtonPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>SuperAdminPage()));

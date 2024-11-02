@@ -69,14 +69,14 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
       padding: const EdgeInsets.all(16.0), // Add padding if necessary
       children: [
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.point_of_sale,
           label: 'POS',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/POS_PAGE');
           },
         ),
         DashboardItem(
-          icon: Icons.work_outline,
+          icon: Icons.assignment_returned,
           label: 'Sales Return' ,
           onButtonPressed: () {
             Navigator.pushNamed(context, '/sales_return');
@@ -84,22 +84,15 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> with SingleTicker
         ),
         // Add other DashboardItems as needed
         DashboardItem(
-          icon: Icons.people_alt_outlined,
+          icon: Icons.list,
           label: 'Total Sales',
           onButtonPressed: () {
             Navigator.pushNamed(context, '/total_sales');
             // Navigator.push(context, MaterialPageRoute(builder: (context)=>const ManagersListPage()));
           },
         ),
-        // DashboardItem(
-        //   icon: Icons.rule,
-        //   label: 'Purchase Repo',
-        //   onButtonPressed: () {
-        //     Navigator.push(context, MaterialPageRoute(builder: (context)=>PurchaseDashboard()));
-        //   },
-        // ),
         DashboardItem(
-          icon: Icons.rule,
+          icon: Icons.report_gmailerrorred_outlined,
           label: 'Sales Repo',
           onButtonPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>SaleDashboard()));
