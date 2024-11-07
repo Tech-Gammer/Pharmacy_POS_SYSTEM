@@ -437,7 +437,6 @@ class SaleProvider extends ChangeNotifier {
   }
 
   Future<void> saveAndPrint(BuildContext context) async {
-
     String? transactionId = await saveSale(context);
     if (transactionId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -445,156 +444,120 @@ class SaleProvider extends ChangeNotifier {
       );
       return;
     }
-    // Generate the PDF
+
     final pdf = pw.Document();
-    // Get current date and time
     final DateTime now = DateTime.now();
-    final String formattedDate = DateFormat('MM/dd/yyyy').format(now); // Format the date
-    final String formattedTime = DateFormat('hh:mm a').format(now); // Format the time
-    String cashierName = await getCurrentUserName(); // Get the user name asynchronously
-    double discountper = double.tryParse(discountController.text) ?? 0.0; // Get discount rate from controller
-    double totalAfterDiscount = total - (total * (discountper / 100)); // Calculate total after applying the discount
+    final String formattedDate = DateFormat('MM/dd/yyyy').format(now);
+    final String formattedTime = DateFormat('hh:mm a').format(now);
+    String cashierName = await getCurrentUserName();
+    double discountper = double.tryParse(discountController.text) ?? 0.0;
+    double totalAfterDiscount = total - (total * (discountper / 100));
     double totaldiscount = totalAfterDiscount - total;
-    double posCharges = 1.0; // POS charges
-    double grandTotal = totalAfterDiscount + posCharges; // Calculate grand total
+    double posCharges = 1.0;
+    double grandTotal = totalAfterDiscount + posCharges;
 
-    const pdfPageFormat = PdfPageFormat(70 * PdfPageFormat.mm, double.infinity); // 80 mm width, unlimited height
+    const pdfPageFormat = PdfPageFormat(70 * PdfPageFormat.mm, double.infinity);
 
-    // Add content to the PDF (customize as needed)
     pdf.addPage(
-        pw.Page(
-          pageFormat: pdfPageFormat, // Set the custom page format
-          build: (pw.Context context) => pw.Padding(
-            padding: const pw.EdgeInsets.all(10), // Add padding to all sides (adjust as needed)
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Center(
-                  child: pw.Text(
-                    'Mughal Pharmacy',
-                    style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-                  ),
-                ),
-                pw.Center(
-                  child: pw.Text('With Us, It\'s Most Personal', style: const pw.TextStyle(fontSize: 10)),
-                ),
-                pw.SizedBox(height: 10),
-                pw.Text('Store#: 1384', style: const pw.TextStyle(fontSize: 10)),
-                pw.Text('Alam Chow Gujranwala', style: const pw.TextStyle(fontSize: 10)),
-                pw.Text('Punjab Pakistan', style: const pw.TextStyle(fontSize: 10)),
-                pw.Text('+92 307-6455926', style: const pw.TextStyle(fontSize: 10)),
-                pw.SizedBox(height: 10),
-                pw.Text('Register #47', style: const pw.TextStyle(fontSize: 10)),
-                pw.Text('Transaction #$saleNumber', style: const pw.TextStyle(fontSize: 10)), // Display Sale ID
+      pw.Page(
+        pageFormat: pdfPageFormat,
+        build: (pw.Context context) => pw.Padding(
+          padding: const pw.EdgeInsets.all(10),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Center(child: pw.Text('Mughal Pharmacy', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold))),
+              pw.Center(child: pw.Text('With Us, It\'s Most Personal', style: const pw.TextStyle(fontSize: 10))),
+              pw.SizedBox(height: 10),
+              pw.Text('Store#: 1384', style: const pw.TextStyle(fontSize: 10)),
+              pw.Text('Alam Chow Gujranwala', style: const pw.TextStyle(fontSize: 10)),
+              pw.Text('Punjab Pakistan', style: const pw.TextStyle(fontSize: 10)),
+              pw.Text('+92 307-6455926', style: const pw.TextStyle(fontSize: 10)),
+              pw.SizedBox(height: 10),
+              pw.Text('Register #47', style: const pw.TextStyle(fontSize: 10)),
+              pw.Text('Transaction #$saleNumber', style: const pw.TextStyle(fontSize: 10)),
+              pw.Text('Cashier: $cashierName', style: const pw.TextStyle(fontSize: 12)),
+              pw.Text('Date: $formattedDate    Time: $formattedTime', style: const pw.TextStyle(fontSize: 10)),
+              pw.Divider(),
+              pw.Text('Items:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+              pw.SizedBox(height: 5),
+              ...selectedItems.map((item) => pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text('${item.qty} x ${item.name} @ ${item.ratePerTab.toStringAsFixed(2)} rs', style: const pw.TextStyle(fontSize: 10)),
+                  pw.Text('${(item.ratePerTab * item.qty).toStringAsFixed(2)} rs', style: const pw.TextStyle(fontSize: 10)),
+                ],
+              )),
+              pw.Divider(),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [pw.Text('Subtotal'), pw.Text('${total.toStringAsFixed(2)} rs')],
+              ),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [pw.Text('Discount'), pw.Text('${totaldiscount.toStringAsFixed(2)} rs')],
+              ),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [pw.Text('POS Charges'), pw.Text('${posCharges.toStringAsFixed(2)} rs')],
+              ),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [pw.Text('TOTAL', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)), pw.Text('${grandTotal.toStringAsFixed(2)} rs', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [pw.Text('Cash Received'), pw.Text('${cashReceived.toStringAsFixed(2)} rs')],
+              ),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [pw.Text('Remaining Balance'), pw.Text('${remainingbalance.toStringAsFixed(2)} rs')],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Center(
+                child: pw.BarcodeWidget(barcode: pw.Barcode.code128(), data: '95543358064310030', width: 130, height: 40),
+              ),
+              pw.Center(
+                child: pw.Text('THANKS FOR SHOPPING WITH US', style: const pw.TextStyle(fontSize: 8)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
-                pw.Text('Cashier: $cashierName', style: const pw.TextStyle(fontSize: 12)), // Display current user name
-                pw.Text('Date: $formattedDate    Time: $formattedTime', style: const pw.TextStyle(fontSize: 10)), // Current date and time
-                pw.Divider(),
-                pw.Text('Items:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                pw.SizedBox(height: 5),
-                ...selectedItems.map((item) => pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('${item.qty} x ${item.name} @ ${item.ratePerTab.toStringAsFixed(2)} rs', style: const pw.TextStyle(fontSize: 10)), // Display quantity, item name, and rate per tab
-                    pw.Text(' ${(item.ratePerTab * item.qty).toStringAsFixed(2)} rs', style: const pw.TextStyle(fontSize: 10)),
-                  ],
-                )),
-                pw.Divider(),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Subtotal'),
-                    pw.Text(' ${total.toStringAsFixed(2)} rs'),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Discount'),
-                    pw.Text(' ${totaldiscount.toStringAsFixed(2)} rs'), // Total after discount
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('POS Charges'),
-                    pw.Text(' ${posCharges.toStringAsFixed(2)} rs'), // Show POS charges
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('TOTAL', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    pw.Text(' ${grandTotal.toStringAsFixed(2)} rs', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ],
-                ),
-                pw.SizedBox(height: 10),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Cash Received'),
-                    pw.Text(' ${cashReceived.toStringAsFixed(2)} rs'),
-                  ],
-                ),
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text('Remaining Balance'),
-                    pw.Text(' ${remainingbalance.toStringAsFixed(2)} rs'),
-                  ],
-                ),
-                pw.SizedBox(height: 10),
-                pw.Center(
-                  child: pw.BarcodeWidget(
-                    barcode: pw.Barcode.code128(),
-                    data: '95543358064310030',
-                    width: 130,
-                    height: 40,
-                  ),
-                ),
-                pw.Center(
-                  child: pw.Text('THANKS FOR SHOPPING WITH US', style: const pw.TextStyle(fontSize: 8)),
-                ),
-              ],
+    final pdfBytes = await pdf.save();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: 400, // Adjust width as needed
+            height: 600, // Adjust height as needed
+            child: PdfPreview(
+              build: (format) => pdfBytes,
+              allowPrinting: true,
+              allowSharing: true,
             ),
           ),
-        )
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
-    // Handle PDF download for web
-    if (kIsWeb) {
-      final pdfBytes = await pdf.save();
-      final blob = html.Blob([pdfBytes], 'application/pdf');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute('download', 'receipt_${DateTime.now()}.pdf')
-        ..click();
 
-      // Open the PDF in a new tab
-      // html.window.open(url, '_blank');
 
-      // Delay before showing the print dialog
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Show the print dialog
-      html.window.print();
-
-      // Revoke object URL to free memory
-      // Handle PDF download for web
-
-        html.Url.revokeObjectUrl(url);
-      print(selectedItems);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PDF downloaded and opened successfully!')),
-      );
-      clearSaleData();
-
-    } else {
-      // For mobile, use the printing package
-      await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
-    }
-
-    notifyListeners(); // Notify listeners if there are changes
+    clearSaleData();
+    notifyListeners();
   }
 
 
