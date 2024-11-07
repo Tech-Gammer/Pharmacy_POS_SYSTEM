@@ -52,7 +52,7 @@ class _ItemsPageState extends State<ItemsPage> {
                 const SizedBox(width: 30,),
                 Text('Qty By Tab: ${item.total_pieces} pcs'),
                 const SizedBox(width: 30,),
-                Text('Qty By Box: ${item.box_qty} pcs'),
+                Text('Qty By Box: ${item.box_qty.toString()} pcs'),
                 const SizedBox(width: 30,),
                 Text('Rate Per Tab: ${item.ratePerTab.toStringAsFixed(2)} rs'),
               ],
