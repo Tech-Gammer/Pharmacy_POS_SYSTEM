@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../Models/selecteditemmodel.dart';
-import '../Providers/saleprovider.dart';
+// import '../Providers/saleprovider.dart';
+import '../Providers/saleprovider.dart'if (kIsWeb) 'saleprovider_other.dart';
 
 class POSPage extends StatelessWidget {
   const POSPage({Key? key}) : super(key: key);

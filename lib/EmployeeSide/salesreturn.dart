@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Providers/saleprovider.dart';
-
+import '../Providers/saleprovider.dart'if (kIsWeb) 'saleprovider_other.dart';
+// import 'saleprovider_web.dart' if (kIsWeb) 'saleprovider_other.dart';
 class SalesReturnSearchScreen extends StatelessWidget {
   final TextEditingController saleIdController = TextEditingController();
   final TextEditingController dateController = TextEditingController();

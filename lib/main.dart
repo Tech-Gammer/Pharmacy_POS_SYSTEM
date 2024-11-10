@@ -22,7 +22,7 @@ import 'ManagerSide/total_units.dart';
 import 'Providers/authProvieder.dart';
 import 'Providers/categoryprovider.dart';
 import 'Providers/itemprovider.dart';
-import 'Providers/saleprovider.dart';
+import 'Providers/saleprovider.dart'if (kIsWeb) 'saleprovider_other.dart';
 import 'Providers/unitprovider.dart';
 import 'Providers/userprovider.dart';
 import 'auth_pages/Registerpage.dart';

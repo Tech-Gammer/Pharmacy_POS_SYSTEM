@@ -7,10 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw; // Use an alias for the pdf package
 import 'dart:html' as html; // Import for web functionalities
-import 'package:flutter/foundation.dart'; // Import for kIsWeb
+// import 'package:flutter/foundation.dart'; // Import for kIsWeb
 import 'package:printing/printing.dart';
 import '../Models/selecteditemmodel.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class SaleProvider extends ChangeNotifier {
   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();

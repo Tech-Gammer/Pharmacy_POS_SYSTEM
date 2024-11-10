@@ -79,31 +79,43 @@ class _SalesReportPageState extends State<SalesReportPage> {
 
   Future<void> generateSalesReportPdf() async {
     final pdf = pw.Document();
+    const pdfPageFormat = PdfPageFormat.a4;
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Column(
-          children: [
-            pw.Text('Sales Report', style: const pw.TextStyle(fontSize: 24)),
-            pw.Text('Date Range: ${selectedDateRange!.start} to ${selectedDateRange!.end}'),
-            pw.SizedBox(height: 20),
-            pw.Table.fromTextArray(
-              headers: ['Date', 'Transaction ID', 'Total', 'Cash Received', 'Remaining Balance'],
-              data: filteredSales.map((sale) {
-                return [
-                  sale['date'],
-                  sale['transactionID'],
-                  sale['total'],
-                  sale['cashReceived'],
-                  sale['remainingBalance']
-                ];
-              }).toList(),
-            ),
-          ],
+    // Split data into chunks of 30 rows
+    final chunks = <List<Map<String, dynamic>>>[];
+    for (var i = 0; i < filteredSales.length; i += 25) {
+      chunks.add(filteredSales.sublist(i, i + 25 > filteredSales.length ? filteredSales.length : i + 25));
+    }
+
+    // Generate a page for each chunk
+    for (final chunk in chunks) {
+      pdf.addPage(
+        pw.Page(
+          pageFormat: pdfPageFormat,
+          build: (pw.Context context) => pw.Column(
+            children: [
+              pw.Text('Sales Report', style: const pw.TextStyle(fontSize: 24)),
+              pw.Text('Date Range: ${selectedDateRange!.start} to ${selectedDateRange!.end}'),
+              pw.SizedBox(height: 20),
+              pw.Table.fromTextArray(
+                headers: ['Date', 'Transaction ID', 'Total', 'Cash Received', 'Remaining Balance'],
+                data: chunk.map((sale) {
+                  return [
+                    sale['date'],
+                    sale['transactionID'],
+                    sale['total'],
+                    sale['cashReceived'],
+                    sale['remainingBalance']
+                  ];
+                }).toList(),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
 
+    // Print the PDF
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
