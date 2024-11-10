@@ -45,11 +45,10 @@ class _TotalPurchasesState extends State<TotalPurchases> {
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'update') {
-                      // Navigate to AddItem page with the selected item for updating
                       // Navigator.push(
                       //   context,
                       //   MaterialPageRoute(
-                      //     builder: (context) => PurchasePage(), // Pass the item to AddItem page
+                      //     builder: (context) => PurchasePage(purchase: purchase),
                       //   ),
                       // );
                     } else if (value == 'delete') {

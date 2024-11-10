@@ -4,12 +4,21 @@ import 'package:pharmacy_pos_system/Providers/purchaseprovider.dart';
 import 'package:provider/provider.dart';
 
 class PurchasePage extends StatelessWidget {
-  const PurchasePage({Key? key}) : super(key: key);
+  // const PurchasePage({Key? key}) : super(key: key);
+  final Map<String, dynamic>? purchase;
 
+  const PurchasePage({Key? key, this.purchase}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<PurchaseProvider>(context);
-
+    // Initialize provider fields if a purchase is passed for editing
+    if (purchase != null) {
+      provider.selectedSupplier = purchase!['supplier'];
+      provider.purchaseNumber = purchase!['purchaseNumber'];
+      provider.expiryDateController.text = purchase!['date'];
+      provider.totalAmount = purchase!['totalAmount'];
+      provider.selectedItems = purchase!['items'];
+    }
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

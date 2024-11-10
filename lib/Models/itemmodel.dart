@@ -17,7 +17,7 @@ class Item {
   final String manufacturer;
   final String location;
   final String category;
-  final String? box_qty;
+  final int? box_qty;
   final int? total_pieces;
   Item({
     required this.id,
@@ -64,7 +64,8 @@ class Item {
       manufacturer: data['manufacturer'] ?? '', // Provide a default empty string if null
       location: data['location'] ?? '', // Provide a default empty string if null
       category: data['category'] ?? '', // Provide a default empty string if null
-      box_qty: data['box_qty'] ?? '', // Provide a default empty string if null
+      // box_qty: data['box_qty'] ?? '', // Provide a default empty string if null
+      box_qty: (data['box_qty'] as num?)?.toInt() ?? 0, // Handle null for integer values
       total_pieces: (data['total_pieces'] as num?)?.toInt() ?? 0, // Handle null for integer values
     );
   }
